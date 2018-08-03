@@ -19,6 +19,7 @@ matrix:
 install:
   - pip install -r requirements.tests.txt
   - python setup.py develop
+  - pip install coveralls
 
 script:
   - py.test --cov=cluster -v
