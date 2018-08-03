@@ -20,7 +20,7 @@ install:
   - pip install -r requirements.tests.txt
   - python setup.py develop
 
-scritps:
+script:
   - py.test --cov=cluster -v
 
 after_success:
