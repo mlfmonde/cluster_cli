@@ -74,7 +74,7 @@ $ git clone https://github.com/mlfmonde/cluster_cli
 $ cd cluster_cli
 $ pip install -r requirements.tests.txt
 $ python setup.py develop
-$ py.test py.test --cov=cluster -v
+$ py.test --cov=cluster -v --pep8
 ```
 
 
