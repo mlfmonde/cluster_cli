@@ -30,11 +30,11 @@ def main():
     def cluster_checks(args):
         cluster = init(args)
         for node, services in cluster.checks(all=args.all).items():
-            print("Node {}".format(node))
+            print("Node {}:".format(node))
             for _, service in services.items():
-                print(" - Service {}".format(service['name']))
+                print(" - Service {}:".format(service['name']))
                 for name, status, _ in service['checks']:
-                    print("     - Cehck ({}): {}".format(status, name))
+                    print("    - Cehck ({}): {}".format(status, name))
 
     parser_checks.set_defaults(func=cluster_checks)
 

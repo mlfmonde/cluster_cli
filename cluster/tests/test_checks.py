@@ -1,12 +1,22 @@
 from unittest import mock, TestCase
 from cluster.cluster import Cluster
+from cluster.client import main
+from testfixtures import OutputCapture
 
 
 class TestChecks(TestCase):
 
     def setUp(self):
+        self.mocked_consul = mock.MagicMock()
+        self.cluster_patch = mock.patch(
+            'cluster.cluster.Cluster.consul',
+            new_callable=mock.PropertyMock(return_value=self.mocked_consul)
+        )
+        self.cluster_patch.start()
         self.cluster = Cluster('http://fake.host')
-        self.cluster.consul = mock.MagicMock()
+
+    def tearDown(self):
+        self.cluster_patch.stop()
 
     def test_checks_empty_result(self):
         self.assertFalse(
@@ -53,7 +63,7 @@ class TestChecks(TestCase):
                 ]
             else:
                 return []
-        self.cluster.consul.configure_mock(**{
+        self.mocked_consul.configure_mock(**{
             'health.state.side_effect': consul_health_state,
         })
 
@@ -116,3 +126,16 @@ class TestChecks(TestCase):
                 },
             }
         )
+
+    def test_check_command_lines(self):
+        self.fill_data()
+        with OutputCapture() as output:
+            with mock.patch('sys.argv', ['cluster', 'checks', ]):
+                main()
+                output.compare(
+                    "\n".join([
+                        "Node node-2:",
+                        " - Service Service 3:",
+                        "    - Cehck (critical): Check Service 3",
+                    ])
+                )

@@ -4,15 +4,23 @@ from urllib.parse import urlparse
 
 class Cluster:
 
+    _consul_url = None
+    _consul = None
+
     def __init__(self, consul_url):
-        consul_url = urlparse(consul_url)
-        self.consul = consulate.Consul(
-            scheme=consul_url.scheme,
-            host=consul_url.hostname,
-            port=consul_url.port,
-            datacenter=None,
-            token=None,
-        )
+        self._consul_url = urlparse(consul_url)
+
+    @property
+    def consul(self):
+        if not self._consul:
+            self._consul = consulate.Consul(
+                scheme=self._consul_url.scheme,
+                host=self._consul_url.hostname,
+                port=self._consul_url.port,
+                datacenter=None,
+                token=None,
+            )
+        return self._consul
 
     def checks(self, all=False):
         """Display failed checks per nodes
