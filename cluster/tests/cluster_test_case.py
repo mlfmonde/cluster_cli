@@ -11,6 +11,15 @@ class ClusterTestCase(TestCase):
             'cluster.cluster.Cluster.consul',
             new_callable=mock.PropertyMock(return_value=self.mocked_consul)
         )
+
+        self.mocked_consul.configure_mock(**{
+            'catalog.nodes.return_value': [
+                {'Node': 'node-1', },
+                {'Node': 'node-2', },
+                {'Node': 'node-3', },
+                {'Node': 'node-4', },
+            ]
+        })
         self.cluster_patch.start()
         self.cluster = Cluster('http://fake.host')
 

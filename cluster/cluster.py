@@ -16,8 +16,9 @@ class Cluster:
 
     _consul_url = None
     _consul = None
+    _nodes = None
 
-    def __init__(self, consul_url):
+    def __init__(self, consul_url='http://localhost:8500'):
         self._consul_url = urlparse(consul_url)
 
     @property
@@ -31,6 +32,14 @@ class Cluster:
                 token=None,
             )
         return self._consul
+
+    @property
+    def nodes(self):
+        if not self._nodes:
+            self._nodes = [
+                node['Node'] for node in self.consul.catalog.nodes()
+            ]
+        return self._nodes
 
     def checks(self, all=False):
         """Display failed checks per nodes
@@ -93,20 +102,49 @@ class Cluster:
             raise NotImplementedError(
                 "Deploying a new service is not implemented"
             )
-        if master or slave:
-            raise NotImplementedError(
-                "Forcing master or slave is not implemented"
+
+        if master and slave and master == slave:
+            raise RuntimeError("Master and slave must be different")
+        new_master = master
+        new_slave = slave
+        if app.slave:
+            # taht was a replicated service => that will carry on to be a
+            # replicate service because the auto detect switch guess the slave
+            if not new_master:
+                new_master = app.slave
+            if not new_slave:
+                new_slave = app.master
+            if new_master == new_slave:
+                if master:
+                    new_slave = app.slave
+                if slave:
+                    new_master = app.master
+        else:
+            # was a master only service
+            if not new_master:
+                new_master = app.master
+
+        if new_master == new_slave:
+            raise RuntimeError("Master and slave must be different")
+        if new_master not in self.nodes:
+            raise RuntimeError(
+                "Can't deploy to unknown master (node host: {})".format(
+                    new_master
+                )
             )
-        if app.slave and app.master:
-            self._deploy(
-                key,
-                app.repo_url,
-                app.branch,
-                app.slave,
-                slave=app.master,
+        if new_slave is not None and new_slave not in self.nodes:
+            raise RuntimeError(
+                "Can't deploy using unknown slave (node host: {}) ".format(
+                    new_slave
+                )
             )
-            return
-        raise NotImplementedError("This use case is not yet implemented")
+        self._deploy(
+            key,
+            app.repo_url,
+            app.branch,
+            new_master,
+            slave=new_slave,
+        )
 
     # communicate with consul
     def _deploy(
