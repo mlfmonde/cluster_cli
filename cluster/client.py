@@ -1,6 +1,6 @@
 import argparse
 
-from cluster.cluster import Cluster
+from cluster import cluster
 
 
 def main():
@@ -45,8 +45,22 @@ def main():
         help='Slave node'
     )
 
+    parser_deploy.add_argument(
+        '-w', '--wait',
+        action='store_true',
+        help='Wait the end of deployment before stop the script. Raise an'
+             'exception if deployment failed in the given time'
+    )
+    parser_deploy.add_argument(
+        '-t', '--timeout',
+        type=int,
+        default=cluster.DEFAULT_TIMEOUT,
+        help='Time in second to let a chance to deploy the service before'
+             'raising an exception (ignored without ``--wait`` option)'
+    )
+
     def init(args):
-        return Cluster(
+        return cluster.Cluster(
             args.consul
         )
 
@@ -62,7 +76,12 @@ def main():
     def cluster_deploy(args):
         cluster = init(args)
         cluster.deploy(
-            args.repo, args.branch, master=args.master, slave=args.slave
+            args.repo,
+            args.branch,
+            master=args.master,
+            slave=args.slave,
+            wait=args.wait,
+            timeout=args.timeout
         )
 
     parser_checks.set_defaults(func=cluster_checks)

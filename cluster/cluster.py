@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 
 from cluster import util
 
-DEFAULT_TIMEOUT = 600
+DEFAULT_TIMEOUT = 120
 logger = logging.getLogger(__name__)
 
 
@@ -96,7 +96,15 @@ class Cluster:
         key, data = apps.popitem()
         return key, util.json2obj(data)
 
-    def deploy(self, repo_name, branch, master=None, slave=None):
+    def deploy(
+            self,
+            repo_name,
+            branch,
+            master=None,
+            slave=None,
+            wait=False,
+            timeout=DEFAULT_TIMEOUT
+    ):
         key, app = self.get_kv_application(repo_name, branch)
         if not app:
             raise NotImplementedError(
@@ -144,6 +152,8 @@ class Cluster:
             app.branch,
             new_master,
             slave=new_slave,
+            wait=wait,
+            timeout=timeout
         )
 
     # communicate with consul

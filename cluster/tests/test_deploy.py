@@ -3,6 +3,7 @@ import json
 from unittest import mock
 
 from cluster.client import main
+from cluster import cluster
 from cluster.tests.cluster_test_case import ClusterTestCase
 
 
@@ -50,7 +51,12 @@ class TestDeploy(ClusterTestCase):
             with mock.patch('cluster.cluster.Cluster.deploy') as mo:
                 main()
                 mo.assert_called_once_with(
-                    'reponame', 'branch', master=None, slave=None
+                    'reponame',
+                    'branch',
+                    master=None,
+                    slave=None,
+                    wait=False,
+                    timeout=cluster.DEFAULT_TIMEOUT
                 )
 
     def test_command_line_new_service(self):
@@ -59,12 +65,15 @@ class TestDeploy(ClusterTestCase):
                 [
                     'cluster',
                     'deploy',
-                    'reponame',
-                    'branch',
                     '--master',
                     'master-node',
                     '--slave',
-                    'slave-node'
+                    'slave-node',
+                    '-w',
+                    '-t',
+                    '10',
+                    'reponame',
+                    'branch',
                 ]
         ):
             with mock.patch('cluster.cluster.Cluster.deploy') as mo:
@@ -73,7 +82,9 @@ class TestDeploy(ClusterTestCase):
                     'reponame',
                     'branch',
                     master='master-node',
-                    slave='slave-node'
+                    slave='slave-node',
+                    wait=True,
+                    timeout=10
                 )
 
     def test_deploy(self):
@@ -90,6 +101,8 @@ class TestDeploy(ClusterTestCase):
                 'branch-name',
                 'node-2',
                 slave='node-1',
+                wait=False,
+                timeout=cluster.DEFAULT_TIMEOUT
             )
 
     def test_deploy_switch_master_only(self):
@@ -102,6 +115,8 @@ class TestDeploy(ClusterTestCase):
                 'branch-name',
                 'node-1',
                 slave=None,
+                wait=False,
+                timeout=cluster.DEFAULT_TIMEOUT
             )
 
     def test_deploy_master_slave_foce_master_on_same_node(self):
@@ -116,6 +131,8 @@ class TestDeploy(ClusterTestCase):
                 'branch-name',
                 'node-1',
                 slave='node-2',
+                wait=False,
+                timeout=cluster.DEFAULT_TIMEOUT
             )
 
     def test_deploy_master_slave_foce_master_on_current_slave(self):
@@ -130,6 +147,8 @@ class TestDeploy(ClusterTestCase):
                 'branch-name',
                 'node-2',
                 slave='node-1',
+                wait=False,
+                timeout=cluster.DEFAULT_TIMEOUT
             )
 
     def test_deploy_master_slave_foce_master_on_new_node(self):
@@ -144,6 +163,8 @@ class TestDeploy(ClusterTestCase):
                 'branch-name',
                 'node-3',
                 slave='node-1',
+                wait=False,
+                timeout=cluster.DEFAULT_TIMEOUT
             )
 
     def test_deploy_master_slave_foce_master_slave_new_nodes(self):
@@ -158,6 +179,8 @@ class TestDeploy(ClusterTestCase):
                 'branch-name',
                 'node-3',
                 slave='node-4',
+                wait=False,
+                timeout=cluster.DEFAULT_TIMEOUT
             )
 
     def test_deploy_master_slave_foce_master_slave_same_nodes(self):
@@ -172,6 +195,8 @@ class TestDeploy(ClusterTestCase):
                 'branch-name',
                 'node-1',
                 slave='node-2',
+                wait=False,
+                timeout=cluster.DEFAULT_TIMEOUT
             )
 
     def test_deploy_master_slave_foce_master_slave_switch_nodes(self):
@@ -186,6 +211,8 @@ class TestDeploy(ClusterTestCase):
                 'branch-name',
                 'node-2',
                 slave='node-1',
+                wait=False,
+                timeout=cluster.DEFAULT_TIMEOUT
             )
 
     def test_deploy_master_slave_foce_master_on_same_nodes_name(self):
@@ -231,6 +258,8 @@ class TestDeploy(ClusterTestCase):
                 'branch-name',
                 'node-1',
                 slave=None,
+                wait=False,
+                timeout=cluster.DEFAULT_TIMEOUT
             )
 
     def test_deploy_master_only_foce_master_new_master(self):
@@ -245,6 +274,8 @@ class TestDeploy(ClusterTestCase):
                 'branch-name',
                 'node-2',
                 slave=None,
+                wait=False,
+                timeout=cluster.DEFAULT_TIMEOUT
             )
 
     def test_deploy_master_only_foce_slave_becomes_replicate(self):
@@ -260,6 +291,8 @@ class TestDeploy(ClusterTestCase):
                 'branch-name',
                 'node-1',
                 slave='node-2',
+                wait=False,
+                timeout=cluster.DEFAULT_TIMEOUT
             )
 
     def test_deploy_master_only_becomes_replicate_force_slave_conflict_master(
@@ -286,6 +319,8 @@ class TestDeploy(ClusterTestCase):
                 'branch-name',
                 'node-2',
                 slave='node-4',
+                wait=False,
+                timeout=cluster.DEFAULT_TIMEOUT
             )
 
     def test_deploy_master_slave_foce_slave_same_node(self):
@@ -300,6 +335,8 @@ class TestDeploy(ClusterTestCase):
                 'branch-name',
                 'node-1',
                 slave='node-2',
+                wait=False,
+                timeout=cluster.DEFAULT_TIMEOUT
             )
 
     def test_deploy_master_slave_foce_slave_switch_nodes(self):
@@ -314,4 +351,6 @@ class TestDeploy(ClusterTestCase):
                 'branch-name',
                 'node-2',
                 slave='node-1',
+                wait=False,
+                timeout=cluster.DEFAULT_TIMEOUT
             )
