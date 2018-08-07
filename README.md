@@ -17,13 +17,14 @@ Use the embedded help command, to know the list of available commands:
 
 ```bash
 $ cluster -h
-usage: cluster [-h] [--consul CONSUL] {checks} ...
+usage: cluster [-h] [--consul CONSUL] {checks,deploy} ...
 
 Command line utility to administrate cluster
 
 positional arguments:
-  {checks}              sub-commands
+  {checks,deploy}       sub-commands
     checks              List consul health checks per nodes/service
+    deploy              Deploy or re-deploy a service
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -54,6 +55,38 @@ Node node-3
      - Cehck (critical): Service 'ABC' check
 ```
 
+### deploy
+
+Re-deploy a service.
+
+if master / slave are not provided, system will choose for you. For replicate
+service it will try to switch master/slave. You can force master or slave only.
+
+
+```bash
+$ cluster deploy -h
+usage: cluster deploy [-h] [--master NODE] [--slave NODE] [-w] [-t TIMEOUT]
+                      repo branch
+
+positional arguments:
+  repo                  The repo name or whole form
+                        (ssh://git@git.example.com:22/project-slug/repo-name)
+                        for new service.
+  branch                The branch to deploy
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --master NODE         Node where to deploy the master (required for new
+                        service)
+  --slave NODE          Slave node
+  -w, --wait            Wait the end of deployment before stop the script.
+                        Raise anexception if deployment failed in the given
+                        time
+  -t TIMEOUT, --timeout TIMEOUT
+                        Time in second to let a chance to deploy the service
+                        beforeraising an exception (ignored without ``--wait``
+                        option)
+```
 
 ## Install
 

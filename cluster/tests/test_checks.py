@@ -1,22 +1,11 @@
-from unittest import mock, TestCase
-from cluster.cluster import Cluster
-from cluster.client import main
 from testfixtures import OutputCapture
+from unittest import mock
+
+from cluster.client import main
+from cluster.tests.cluster_test_case import ClusterTestCase
 
 
-class TestChecks(TestCase):
-
-    def setUp(self):
-        self.mocked_consul = mock.MagicMock()
-        self.cluster_patch = mock.patch(
-            'cluster.cluster.Cluster.consul',
-            new_callable=mock.PropertyMock(return_value=self.mocked_consul)
-        )
-        self.cluster_patch.start()
-        self.cluster = Cluster('http://fake.host')
-
-    def tearDown(self):
-        self.cluster_patch.stop()
+class TestChecks(ClusterTestCase):
 
     def test_checks_empty_result(self):
         self.assertFalse(
