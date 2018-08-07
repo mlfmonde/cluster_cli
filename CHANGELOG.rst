@@ -4,6 +4,6 @@ Change log
 Unreleased
 ----------
 
-* Re-deploy an existing service
+* Implement deploy subcommand to Deploy or re-deploy a service
 
 * First implementation, list checks per nodes

@@ -4,7 +4,7 @@ from unittest import mock
 
 from cluster.client import main
 from cluster import cluster
-from cluster.tests.cluster_test_case import ClusterTestCase
+from cluster.tests.cluster_test_case import ClusterTestCase, Counter
 
 
 class TestDeploy(ClusterTestCase):
@@ -354,3 +354,139 @@ class TestDeploy(ClusterTestCase):
                 wait=False,
                 timeout=cluster.DEFAULT_TIMEOUT
             )
+
+    def test_timeout(self):
+        self.mocked_consul.configure_mock(**{
+            'kv.find.return_value': {
+                "app/repo-name_branch-name.12345": json.dumps(
+                    self.get_mock_data()
+                )
+            }
+        })
+
+        def kv_get(key):
+            return None
+
+        self.mocked_consul.configure_mock(**{
+            'kv.get.side_effect': kv_get
+        })
+        self.assertRaises(
+            TimeoutError,
+            self.cluster.deploy,
+            'repo-name',
+            'branch-name',
+            wait=True,
+            timeout=2
+        )
+
+    def test_wait(self):
+        self.mocked_consul.configure_mock(**{
+            'kv.find.return_value': {
+                "app/repo-name_branch-name.12345": json.dumps(
+                    self.get_mock_data()
+                )
+            }
+        })
+
+        def kv_get(key):
+            if Counter.get('test_wait') > 2:
+                return json.dumps(self.get_mock_data())
+            return None
+
+        self.mocked_consul.configure_mock(**{
+            'kv.get.side_effect': kv_get
+        })
+        self.cluster.deploy(
+            'repo-name', 'branch-name', wait=True
+        )
+
+    def test_wait_existing_app(self):
+        self.mocked_consul.configure_mock(**{
+            'kv.find.return_value': {
+                "app/repo-name_branch-name.12345": json.dumps(
+                    self.get_mock_data()
+                )
+            }
+        })
+
+        def kv_get(key):
+            if Counter.get('test_wait_existing_app') > 2:
+                return json.dumps(self.get_mock_data(
+                    extra={'deploy_date': "2018-08-05T224230.000000"})
+                )
+            return json.dumps(self.get_mock_data())
+
+        self.mocked_consul.configure_mock(**{
+            'kv.get.side_effect': kv_get
+        })
+        self.cluster.deploy(
+            'repo-name', 'branch-name', wait=True, timeout=6
+        )
+
+    def test_deploy_new_service(self):
+        self.mocked_consul.configure_mock(**{
+            'kv.find.return_value': {}
+        })
+        with mock.patch('cluster.cluster.Cluster._deploy') as mo:
+            self.cluster.deploy(
+                'ssh://git@git.example.org/namespace/project.git',
+                'branch-name',
+                master='node-1'
+            )
+
+            mo.assert_called_once_with(
+                'app/project_branch-name.a02f7',
+                "ssh://git@git.example.org/namespace/project",
+                'branch-name',
+                'node-1',
+                slave=None,
+                wait=False,
+                timeout=cluster.DEFAULT_TIMEOUT
+            )
+
+    def test_deploy_new_service_no_nodes(self):
+        self.mocked_consul.configure_mock(**{
+            'kv.find.return_value': {}
+        })
+        self.assertRaises(
+            RuntimeError,
+            self.cluster.deploy,
+            'repo-name',
+            'branch-name'
+        )
+
+    def test_to_many_apps_found(self):
+        value_branch = {
+            "repo_url":
+                "ssh://git@git.example.org:2222/services/repo-name",
+            "branch": "branch-name",
+            "deploy_date": "2018-08-05T224229.591386",
+            "deploy_id": "39c4807d-100f-5566-27e5-fbc65d5c5207",
+            "previous_deploy_id":
+                "d48ee41f-ded6-3db4-afb6-b160568f7bd7",
+            "master": "node-1",
+            "slave": "node-2"
+        }
+        value_branch2 = {
+            "repo_url":
+                "ssh://git@git.example.org:2222/services/repo-name",
+            "branch": "branch-name2",
+            "deploy_date": "2018-08-05T224229.591386",
+            "deploy_id": "39c4807d-100f-5566-27e5-fbc65d5c5207",
+            "previous_deploy_id":
+                "d48ee41f-ded6-3db4-afb6-b160568f7bd7",
+            "master": "node-1",
+            "slave": "node-2"
+        }
+        self.mocked_consul.configure_mock(**{
+            'kv.find.return_value': {
+                "app/repo-name_branch-name.12345": json.dumps(value_branch),
+                "app/repo-name_branch-name2.12345": json.dumps(value_branch2)
+            }
+        })
+        self.assertRaises(
+            RuntimeError,
+            self.cluster.deploy,
+            'repo-name',
+            'branch-name'
+        )

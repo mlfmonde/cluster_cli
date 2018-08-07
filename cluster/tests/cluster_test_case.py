@@ -25,3 +25,15 @@ class ClusterTestCase(TestCase):
 
     def tearDown(self):
         self.cluster_patch.stop()
+
+
+class Counter:
+
+    _counter = {}
+
+    @classmethod
+    def get(cls, key):
+        if key not in cls._counter.keys():
+            cls._counter[key] = 0
+        cls._counter[key] += 1
+        return cls._counter[key]

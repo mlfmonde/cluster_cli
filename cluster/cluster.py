@@ -1,10 +1,12 @@
 import consulate
-import logging
+import hashlib
 import json
+import logging
+import os
 import time
 
 from datetime import datetime
-from urllib.parse import urlparse
+from urllib import parse
 
 from cluster import util
 
@@ -19,7 +21,7 @@ class Cluster:
     _nodes = None
 
     def __init__(self, consul_url='http://localhost:8500'):
-        self._consul_url = urlparse(consul_url)
+        self._consul_url = parse.urlparse(consul_url)
 
     @property
     def consul(self):
@@ -106,31 +108,45 @@ class Cluster:
             timeout=DEFAULT_TIMEOUT
     ):
         key, app = self.get_kv_application(repo_name, branch)
-        if not app:
-            raise NotImplementedError(
-                "Deploying a new service is not implemented"
-            )
-
         if master and slave and master == slave:
             raise RuntimeError("Master and slave must be different")
         new_master = master
         new_slave = slave
-        if app.slave:
-            # taht was a replicated service => that will carry on to be a
-            # replicate service because the auto detect switch guess the slave
-            if not new_master:
-                new_master = app.slave
-            if not new_slave:
-                new_slave = app.master
-            if new_master == new_slave:
-                if master:
-                    new_slave = app.slave
-                if slave:
-                    new_master = app.master
+        if not app:
+            if not master:
+                raise RuntimeError(
+                    "Deploying a new service require a master"
+                )
+            repo_url, branch = repo_name.strip(), branch.strip()
+            if repo_url.endswith('.git'):
+                repo_url = repo_url[:-4]
+            md5 = hashlib.md5(
+                parse.urlparse(repo_url.lower()).path.encode('utf-8')
+            ).hexdigest()
+            repo_name = os.path.basename(repo_url.strip('/').lower())
+            key = 'app/' + repo_name + (
+                '_' + branch if branch else ''
+            ) + '.' + md5[:5]  # don't need full md5
         else:
-            # was a master only service
-            if not new_master:
-                new_master = app.master
+            if app.slave:
+                # taht was a replicated service => that will carry on to be a
+                # replicate service because the auto detect switch guess the
+                # slave
+                if not new_master:
+                    new_master = app.slave
+                if not new_slave:
+                    new_slave = app.master
+                if new_master == new_slave:
+                    if master:
+                        new_slave = app.slave
+                    if slave:
+                        new_master = app.master
+            else:
+                # was a master only service
+                if not new_master:
+                    new_master = app.master
+            repo_url = app.repo_url
+            branch = app.branch
 
         if new_master == new_slave:
             raise RuntimeError("Master and slave must be different")
@@ -148,8 +164,8 @@ class Cluster:
             )
         self._deploy(
             key,
-            app.repo_url,
-            app.branch,
+            repo_url,
+            branch,
             new_master,
             slave=new_slave,
             wait=wait,

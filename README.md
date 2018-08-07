@@ -63,8 +63,6 @@ if master / slave are not provided, system will choose for you. For replicate
 service it will try to switch master/slave. You can force master or slave only.
 
 
-> **Note**: deploy a new service is not yet implemented
-
 ```bash
 $ cluster deploy -h
 usage: cluster deploy [-h] [--master NODE] [--slave NODE] [-w] [-t TIMEOUT]
