@@ -119,7 +119,7 @@ class TestDeploy(ClusterTestCase):
                 timeout=cluster.DEFAULT_TIMEOUT
             )
 
-    def test_deploy_master_slave_foce_master_on_same_node(self):
+    def test_deploy_master_slave_force_master_on_same_node(self):
         self.init_mocks()
         with mock.patch('cluster.cluster.Cluster._deploy') as mo:
             self.cluster.deploy(
@@ -135,7 +135,7 @@ class TestDeploy(ClusterTestCase):
                 timeout=cluster.DEFAULT_TIMEOUT
             )
 
-    def test_deploy_master_slave_foce_master_on_current_slave(self):
+    def test_deploy_master_slave_force_master_on_current_slave(self):
         self.init_mocks()
         with mock.patch('cluster.cluster.Cluster._deploy') as mo:
             self.cluster.deploy(
@@ -151,7 +151,7 @@ class TestDeploy(ClusterTestCase):
                 timeout=cluster.DEFAULT_TIMEOUT
             )
 
-    def test_deploy_master_slave_foce_master_on_new_node(self):
+    def test_deploy_master_slave_force_master_on_new_node(self):
         self.init_mocks()
         with mock.patch('cluster.cluster.Cluster._deploy') as mo:
             self.cluster.deploy(
@@ -167,7 +167,7 @@ class TestDeploy(ClusterTestCase):
                 timeout=cluster.DEFAULT_TIMEOUT
             )
 
-    def test_deploy_master_slave_foce_master_slave_new_nodes(self):
+    def test_deploy_master_slave_force_master_slave_new_nodes(self):
         self.init_mocks()
         with mock.patch('cluster.cluster.Cluster._deploy') as mo:
             self.cluster.deploy(
@@ -183,7 +183,7 @@ class TestDeploy(ClusterTestCase):
                 timeout=cluster.DEFAULT_TIMEOUT
             )
 
-    def test_deploy_master_slave_foce_master_slave_same_nodes(self):
+    def test_deploy_master_slave_force_master_slave_same_nodes(self):
         self.init_mocks()
         with mock.patch('cluster.cluster.Cluster._deploy') as mo:
             self.cluster.deploy(
@@ -199,7 +199,7 @@ class TestDeploy(ClusterTestCase):
                 timeout=cluster.DEFAULT_TIMEOUT
             )
 
-    def test_deploy_master_slave_foce_master_slave_switch_nodes(self):
+    def test_deploy_master_slave_force_master_slave_switch_nodes(self):
         self.init_mocks()
         with mock.patch('cluster.cluster.Cluster._deploy') as mo:
             self.cluster.deploy(
@@ -215,7 +215,7 @@ class TestDeploy(ClusterTestCase):
                 timeout=cluster.DEFAULT_TIMEOUT
             )
 
-    def test_deploy_master_slave_foce_master_on_same_nodes_name(self):
+    def test_deploy_master_slave_force_master_on_same_nodes_name(self):
         self.init_mocks()
         self.assertRaises(
             RuntimeError,
@@ -246,7 +246,7 @@ class TestDeploy(ClusterTestCase):
             slave='node-5',
         )
 
-    def test_deploy_master_only_foce_master_same_master(self):
+    def test_deploy_master_only_force_master_same_master(self):
         self.init_mocks({"slave": None})
         with mock.patch('cluster.cluster.Cluster._deploy') as mo:
             self.cluster.deploy(
@@ -262,7 +262,7 @@ class TestDeploy(ClusterTestCase):
                 timeout=cluster.DEFAULT_TIMEOUT
             )
 
-    def test_deploy_master_only_foce_master_new_master(self):
+    def test_deploy_master_only_force_master_new_master(self):
         self.init_mocks({"slave": None})
         with mock.patch('cluster.cluster.Cluster._deploy') as mo:
             self.cluster.deploy(
@@ -278,7 +278,7 @@ class TestDeploy(ClusterTestCase):
                 timeout=cluster.DEFAULT_TIMEOUT
             )
 
-    def test_deploy_master_only_foce_slave_becomes_replicate(self):
+    def test_deploy_master_only_force_slave_becomes_replicate(self):
         self.init_mocks({"slave": None})
         with mock.patch('cluster.cluster.Cluster._deploy') as mo:
             self.cluster.deploy(
@@ -307,7 +307,7 @@ class TestDeploy(ClusterTestCase):
             slave='node-1'
         )
 
-    def test_deploy_master_slave_foce_slave_new_nodes(self):
+    def test_deploy_master_slave_force_slave_new_nodes(self):
         self.init_mocks()
         with mock.patch('cluster.cluster.Cluster._deploy') as mo:
             self.cluster.deploy(
@@ -323,7 +323,7 @@ class TestDeploy(ClusterTestCase):
                 timeout=cluster.DEFAULT_TIMEOUT
             )
 
-    def test_deploy_master_slave_foce_slave_same_node(self):
+    def test_deploy_master_slave_force_slave_same_node(self):
         self.init_mocks()
         with mock.patch('cluster.cluster.Cluster._deploy') as mo:
             self.cluster.deploy(
@@ -339,7 +339,7 @@ class TestDeploy(ClusterTestCase):
                 timeout=cluster.DEFAULT_TIMEOUT
             )
 
-    def test_deploy_master_slave_foce_slave_switch_nodes(self):
+    def test_deploy_master_slave_force_slave_switch_nodes(self):
         self.init_mocks()
         with mock.patch('cluster.cluster.Cluster._deploy') as mo:
             self.cluster.deploy(
