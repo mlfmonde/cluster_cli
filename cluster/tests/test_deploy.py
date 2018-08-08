@@ -9,40 +9,6 @@ from cluster.tests.cluster_test_case import ClusterTestCase, Counter
 
 class TestDeploy(ClusterTestCase):
 
-    def init_mocks(self, extra=None):
-        value = self.get_mock_data(extra=extra)
-        self.init_mock_kv_find(data=value)
-        self.init_mock_kv_get(data=value)
-
-    def get_mock_data(self, extra=None):
-        if not extra:
-            extra = {}
-        value = {
-            "repo_url":
-                "ssh://git@git.example.org:2222/services/repo-name",
-            "branch": "branch-name",
-            "deploy_date": "2018-08-05T224229.591386",
-            "deploy_id": "39c4807d-100f-5566-27e5-fbc65d5c5207",
-            "previous_deploy_id":
-                "d48ee41f-ded6-3db4-afb6-b160568f7bd7",
-            "master": "node-1",
-            "slave": "node-2"
-        }
-        value.update(extra)
-        return value
-
-    def init_mock_kv_find(self, data):
-        self.mocked_consul.configure_mock(**{
-            'kv.find.return_value': {
-                "app/repo-name_branch-name.12345": json.dumps(data)
-            }
-        })
-
-    def init_mock_kv_get(self, data):
-        self.mocked_consul.configure_mock(**{
-            'kv.get.return_value': json.dumps(data)
-        })
-
     def test_command_line(self):
         with mock.patch(
                 'sys.argv',

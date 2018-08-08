@@ -220,6 +220,76 @@ class Cluster:
             timeout
         )
 
+    # move as classmethod to easly reuse it in unittest
+    @classmethod
+    def migrate_finished(
+            cls, kv_app_before, kv_app_after, maintenance=None, self=None,
+            **kwargs
+    ):
+        if maintenance:
+            self.was_maintenance = True
+        if self.was_maintenance and not maintenance:
+            return True
+        return False
+
+    def migrate(
+            self,
+            source_repo,
+            source_branch,
+            target_branch,
+            target_repo=None,
+            wait=False,
+            timeout=DEFAULT_TIMEOUT
+    ):
+
+        if not target_repo:
+            target_repo = source_repo
+
+        if target_branch in ['prod', 'production']:
+            raise RuntimeError(
+                "You can't migrate data to production branch using this script"
+            )
+
+        source_key, source_app = self.get_kv_application(
+            source_repo, source_branch
+        )
+        if not source_app:
+            raise RuntimeError(
+                "Source service (repo: {}, branch: {}) not found".format(
+                    source_repo,
+                    source_branch
+                )
+            )
+        target_key, target_app = self.get_kv_application(
+            target_repo, target_branch
+        )
+        if not target_app:
+            raise RuntimeError(
+                "Target service (repo: {}, branch: {}) not found".format(
+                    target_repo,
+                    target_branch
+                )
+            )
+        self.was_maintenance = False
+
+        self._fire_event(
+            target_key,
+            'migrate',
+            json.dumps(
+                {
+                    'repo': source_app.repo_url,
+                    'branch': source_app.branch,
+                    'target': {
+                        'repo': target_app.repo_url,
+                        'branch': target_app.branch
+                    }
+                }
+            ),
+            wait,
+            Cluster.migrate_finished,
+            timeout
+        )
+
     def _fire_event(
         self,
         kv_key,
