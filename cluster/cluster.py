@@ -10,7 +10,7 @@ from urllib import parse
 
 from cluster import util
 
-DEFAULT_TIMEOUT = 120
+DEFAULT_TIMEOUT = 300
 logger = logging.getLogger(__name__)
 
 
@@ -171,6 +171,58 @@ class Cluster:
             wait=wait,
             timeout=timeout
         )
+
+    def move_masters_from(
+        self, node, master=None, wait=False, timeout=DEFAULT_TIMEOUT
+    ):
+        move_apps = []
+        for key, value in self.consul.kv.find('app/').items():
+            app = util.json2obj(value)
+            if app.master == node:
+                mstr = app.slave
+                if not mstr:
+                    if not master:
+                        raise RuntimeError(
+                            "You must define a default master (--master) as "
+                            "there are some services (at least {}) without "
+                            "replicate (slave)".format(key)
+                        )
+                    if master not in self.nodes:
+                        raise RuntimeError(
+                            "The given default master hostname: {} is "
+                            "unknown. Available nodes: {}".format(
+                                master, self.nodes
+                            )
+                        )
+                    if master == node:
+                        raise RuntimeError(
+                            "You must provide a different default master: {} "
+                            "it must be different to the node that you want"
+                            "clear: {}".format(
+                                master, node
+                            )
+                        )
+
+                    mstr = master
+                move_apps.append(
+                    (
+                        key,
+                        app,
+                        mstr,
+                        app.master if app.slave else None,
+                    )
+                )
+        # logger.info("Project {} will be moved from {} to {}")
+        for key, app, mstr, slave in move_apps:
+            self._deploy(
+                key,
+                app.repo_url,
+                app.branch,
+                mstr,
+                slave=slave,
+                wait=wait,
+                timeout=timeout
+            )
 
     # communicate with consul
     def _deploy(

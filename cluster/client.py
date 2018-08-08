@@ -101,6 +101,35 @@ def main():
         help='Time in second to let a chance to deploy the service before'
              'raising an exception (ignored without ``--wait`` option)'
     )
+    parser_move_masters_from = subparsers.add_parser(
+        'move-masters-from',
+        help='If you want to do some maintenance operation on the host server.'
+             'This command will helps you to send all events to services'
+             'hosted on the given node to its slave ok the wished master'
+    )
+    parser_move_masters_from.add_argument(
+        'node',
+        help='Node where services should not be hosted '
+             'that we want to move away'
+    )
+    parser_move_masters_from.add_argument(
+        '-m', '--master',
+        help="Node to use if no replicate (slave) define on a service, "
+             "otherwise slave will be used as master."
+    )
+    parser_move_masters_from.add_argument(
+        '-w', '--wait',
+        action='store_true',
+        help='Wait the end of deployment before sending next event. Raise an'
+             'exception if deployment failed in the given time'
+    )
+    parser_move_masters_from.add_argument(
+        '-t', '--timeout',
+        type=int,
+        default=cluster.DEFAULT_TIMEOUT,
+        help='Time in second to let a chance to deploy the service before'
+             'raising an exception (ignored without ``--wait`` option)'
+    )
 
     def init(args):
         return cluster.Cluster(
@@ -138,9 +167,19 @@ def main():
             timeout=cmd_args.timeout
         )
 
+    def cluster_move_masters_from(args):
+        cluster = init(args)
+        cluster.move_masters_from(
+            args.node,
+            master=args.master,
+            wait=args.wait,
+            timeout=args.timeout
+        )
+
     parser_checks.set_defaults(func=cluster_checks)
     parser_deploy.set_defaults(func=cluster_deploy)
     parser_migrate.set_defaults(func=cluster_migrate)
+    parser_move_masters_from.set_defaults(func=cluster_move_masters_from)
 
     args = parser.parse_args()
     if hasattr(args, 'func'):

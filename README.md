@@ -9,6 +9,9 @@ This is a command line utility tool to helps administrator to manage their
 Features are:
 
 * List consul health checks per nodes and service
+* deploy or switch services
+* migrate anybox/buttervolume docker volumes from one service to an other
+* clear a node by moving all services running on it
 
 
 ## Commands
@@ -17,12 +20,13 @@ Use the embedded help command, to know the list of available commands:
 
 ```bash
 $ cluster -h
-usage: cluster [-h] [--consul CONSUL] {checks,deploy,migrate} ...
+usage: cluster [-h] [--consul CONSUL]
+               {checks,deploy,migrate,move-masters-from} ...
 
 Command line utility to administrate cluster
 
 positional arguments:
-  {checks,deploy,migrate}
+  {checks,deploy,migrate,move-masters-from}
                         sub-commands
     checks              List consul health checks per nodes/service
     deploy              Deploy or re-deploy a service
@@ -33,6 +37,10 @@ positional arguments:
                         to snaphot or backup your data (ie: switch your app
                         before migrate) on the target, target data will be
                         lost.``prod`` branch name as a target is forbidden
+    move-masters-from   If you want to do some maintenance operation on the
+                        host server.This command will helps you to send all
+                        events to serviceshosted on the given node to its
+                        slave ok the wished master
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -135,6 +143,32 @@ optional arguments:
                         option)
 ```
 
+### Move from master
+
+This script allow to move all masters hosted on the given node away.
+
+```bash
+cluster move-masters-from -h
+usage: cluster move-masters-from [-h] [-m MASTER] [-w] [-t TIMEOUT] node
+
+positional arguments:
+  node                  Node where services should not be hosted that we want
+                        to move away
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -m MASTER, --master MASTER
+                        Node to use if no replicate (slave) define on a
+                        service, otherwise slave will be used as master.
+  -w, --wait            Wait the end of deployment before sending next event.
+                        Raise anexception if deployment failed in the given
+                        time
+  -t TIMEOUT, --timeout TIMEOUT
+                        Time in second to let a chance to deploy the service
+                        beforeraising an exception (ignored without ``--wait``
+                        option)
+```
+
 ## Install
 
 ### on you hosted python to use it
@@ -154,16 +188,12 @@ $ git clone https://github.com/mlfmonde/cluster_cli
 $ cd cluster_cli
 $ pip install -r requirements.tests.txt
 $ python setup.py develop
-$ py.test --cov=cluster -v --pep8
+$ py.test --pep8 --cov=cluster --cov-report=html --lf --nf --ff -v
 ```
 
 
 ## TODOs
 
-* switch method for an existing service
-* deploy to deploy a service (new or not)
-* clear a node, move all the service from one given node
-* add some controls to make sure node exists
 * Find a way to add some checks to avoid deploy some branch (likes qualif) into
   some nodes (reserved for production). this could be implemented by [cluster](
   https://github.com/mlfmonde/cluister) as well
