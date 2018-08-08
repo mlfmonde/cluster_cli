@@ -10,7 +10,7 @@ from urllib import parse
 
 from cluster import util
 
-DEFAULT_TIMEOUT = 120
+DEFAULT_TIMEOUT = 300
 logger = logging.getLogger(__name__)
 
 
