@@ -4,6 +4,8 @@ Change log
 Unreleased
 ----------
 
+* Implement move-masters-from to move all services hosted on the given node
+
 * Implement migrate subcommand to move buttervolume docker volumes from a
   service to another one (ie: prod to qualif)
 

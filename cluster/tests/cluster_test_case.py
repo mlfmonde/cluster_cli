@@ -54,17 +54,15 @@ class ClusterTestCase(TestCase):
             prod_data = data.copy()
             prod_data['branch'] = 'prod'
             cases = {
-                'app/repo-name_branch-name': {
-                    "app/repo-name_branch-name.12345": json.dumps(data)
-                },
-                'app/migrate-repo_qualif': {
-                    "app/migrate-repo_qualif.12345": json.dumps(qualif_data)
-                },
-                'app/migrate-repo_prod': {
-                    "app/migrate-repo_prod.12345": json.dumps(prod_data)
-                },
+                "app/repo-name_branch-name.739a5": json.dumps(data),
+                "app/migrate-repo_qualif.12345": json.dumps(qualif_data),
+                "app/migrate-repo_prod.12345": json.dumps(prod_data),
             }
-            return cases.get(search_key)
+            result = dict()
+            for key, value in cases.items():
+                if key.startswith(search_key):
+                    result[key] = value
+            return result
 
         self.mocked_consul.configure_mock(**{
             'kv.find.side_effect': kv_find

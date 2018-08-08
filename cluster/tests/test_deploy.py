@@ -62,7 +62,7 @@ class TestDeploy(ClusterTestCase):
         with mock.patch('cluster.cluster.Cluster._deploy') as mo:
             self.cluster.deploy('repo-name', 'branch-name')
             mo.assert_called_once_with(
-                'app/repo-name_branch-name.12345',
+                'app/repo-name_branch-name.739a5',
                 "ssh://git@git.example.org:2222/services/repo-name",
                 'branch-name',
                 'node-2',
@@ -76,7 +76,7 @@ class TestDeploy(ClusterTestCase):
         with mock.patch('cluster.cluster.Cluster._deploy') as mo:
             self.cluster.deploy('repo-name', 'branch-name')
             mo.assert_called_once_with(
-                'app/repo-name_branch-name.12345',
+                'app/repo-name_branch-name.739a5',
                 "ssh://git@git.example.org:2222/services/repo-name",
                 'branch-name',
                 'node-1',
@@ -92,7 +92,7 @@ class TestDeploy(ClusterTestCase):
                 'repo-name', 'branch-name', master='node-1'
             )
             mo.assert_called_once_with(
-                'app/repo-name_branch-name.12345',
+                'app/repo-name_branch-name.739a5',
                 "ssh://git@git.example.org:2222/services/repo-name",
                 'branch-name',
                 'node-1',
@@ -108,7 +108,7 @@ class TestDeploy(ClusterTestCase):
                 'repo-name', 'branch-name', master='node-2'
             )
             mo.assert_called_once_with(
-                'app/repo-name_branch-name.12345',
+                'app/repo-name_branch-name.739a5',
                 "ssh://git@git.example.org:2222/services/repo-name",
                 'branch-name',
                 'node-2',
@@ -124,7 +124,7 @@ class TestDeploy(ClusterTestCase):
                 'repo-name', 'branch-name', master='node-3'
             )
             mo.assert_called_once_with(
-                'app/repo-name_branch-name.12345',
+                'app/repo-name_branch-name.739a5',
                 "ssh://git@git.example.org:2222/services/repo-name",
                 'branch-name',
                 'node-3',
@@ -140,7 +140,7 @@ class TestDeploy(ClusterTestCase):
                 'repo-name', 'branch-name', master='node-3', slave='node-4'
             )
             mo.assert_called_once_with(
-                'app/repo-name_branch-name.12345',
+                'app/repo-name_branch-name.739a5',
                 "ssh://git@git.example.org:2222/services/repo-name",
                 'branch-name',
                 'node-3',
@@ -156,7 +156,7 @@ class TestDeploy(ClusterTestCase):
                 'repo-name', 'branch-name', master='node-1', slave='node-2'
             )
             mo.assert_called_once_with(
-                'app/repo-name_branch-name.12345',
+                'app/repo-name_branch-name.739a5',
                 "ssh://git@git.example.org:2222/services/repo-name",
                 'branch-name',
                 'node-1',
@@ -172,7 +172,7 @@ class TestDeploy(ClusterTestCase):
                 'repo-name', 'branch-name', master='node-2', slave='node-1'
             )
             mo.assert_called_once_with(
-                'app/repo-name_branch-name.12345',
+                'app/repo-name_branch-name.739a5',
                 "ssh://git@git.example.org:2222/services/repo-name",
                 'branch-name',
                 'node-2',
@@ -219,7 +219,7 @@ class TestDeploy(ClusterTestCase):
                 'repo-name', 'branch-name', master='node-1'
             )
             mo.assert_called_once_with(
-                'app/repo-name_branch-name.12345',
+                'app/repo-name_branch-name.739a5',
                 "ssh://git@git.example.org:2222/services/repo-name",
                 'branch-name',
                 'node-1',
@@ -235,7 +235,7 @@ class TestDeploy(ClusterTestCase):
                 'repo-name', 'branch-name', master='node-2'
             )
             mo.assert_called_once_with(
-                'app/repo-name_branch-name.12345',
+                'app/repo-name_branch-name.739a5',
                 "ssh://git@git.example.org:2222/services/repo-name",
                 'branch-name',
                 'node-2',
@@ -252,7 +252,7 @@ class TestDeploy(ClusterTestCase):
             )
 
             mo.assert_called_once_with(
-                'app/repo-name_branch-name.12345',
+                'app/repo-name_branch-name.739a5',
                 "ssh://git@git.example.org:2222/services/repo-name",
                 'branch-name',
                 'node-1',
@@ -280,7 +280,7 @@ class TestDeploy(ClusterTestCase):
                 'repo-name', 'branch-name', slave='node-4'
             )
             mo.assert_called_once_with(
-                'app/repo-name_branch-name.12345',
+                'app/repo-name_branch-name.739a5',
                 "ssh://git@git.example.org:2222/services/repo-name",
                 'branch-name',
                 'node-2',
@@ -296,7 +296,7 @@ class TestDeploy(ClusterTestCase):
                 'repo-name', 'branch-name', slave='node-2'
             )
             mo.assert_called_once_with(
-                'app/repo-name_branch-name.12345',
+                'app/repo-name_branch-name.739a5',
                 "ssh://git@git.example.org:2222/services/repo-name",
                 'branch-name',
                 'node-1',
@@ -312,7 +312,7 @@ class TestDeploy(ClusterTestCase):
                 'repo-name', 'branch-name', slave='node-1'
             )
             mo.assert_called_once_with(
-                'app/repo-name_branch-name.12345',
+                'app/repo-name_branch-name.739a5',
                 "ssh://git@git.example.org:2222/services/repo-name",
                 'branch-name',
                 'node-2',
@@ -324,7 +324,7 @@ class TestDeploy(ClusterTestCase):
     def test_timeout(self):
         self.mocked_consul.configure_mock(**{
             'kv.find.return_value': {
-                "app/repo-name_branch-name.12345": json.dumps(
+                "app/repo-name_branch-name.739a5": json.dumps(
                     self.get_mock_data()
                 )
             }
@@ -348,7 +348,7 @@ class TestDeploy(ClusterTestCase):
     def test_wait(self):
         self.mocked_consul.configure_mock(**{
             'kv.find.return_value': {
-                "app/repo-name_branch-name.12345": json.dumps(
+                "app/repo-name_branch-name.739a5": json.dumps(
                     self.get_mock_data()
                 )
             }
@@ -369,7 +369,7 @@ class TestDeploy(ClusterTestCase):
     def test_wait_existing_app(self):
         self.mocked_consul.configure_mock(**{
             'kv.find.return_value': {
-                "app/repo-name_branch-name.12345": json.dumps(
+                "app/repo-name_branch-name.739a5": json.dumps(
                     self.get_mock_data()
                 )
             }
@@ -446,7 +446,7 @@ class TestDeploy(ClusterTestCase):
         }
         self.mocked_consul.configure_mock(**{
             'kv.find.return_value': {
-                "app/repo-name_branch-name.12345": json.dumps(value_branch),
+                "app/repo-name_branch-name.739a5": json.dumps(value_branch),
                 "app/repo-name_branch-name2.12345": json.dumps(value_branch2)
             }
         })
