@@ -58,7 +58,7 @@ Logging params:
 ```
 
 
-### checks
+### Checks
 
 List [consul health checks](https://www.consul.io/api/health.html) per nodes
 and service.
@@ -80,7 +80,7 @@ Node node-3
      - Cehck (critical): Service 'ABC' check
 ```
 
-### deploy
+### Deploy
 
 Re-deploy a service.
 
@@ -112,7 +112,7 @@ optional arguments:
                         beforeraising an exception (ignored without ``--wait``
                         option)
 ```
-### migrate
+### Migrate
 
 Migrate buttervolume (docker volume) data from a service to another one. 
  
@@ -179,7 +179,15 @@ optional arguments:
 
 ## Install
 
-### on you hosted python to use it
+This tool is tested on python 3.5 ans greater
+
+### On you hosted python to use it
+
+```bash
+$ pip3 install git+https://github.com/mlfmonde/cluster_cli@master
+```
+
+or
 
 ```bash
 $ git clone https://github.com/mlfmonde/cluster_cli
