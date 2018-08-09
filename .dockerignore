@@ -1,0 +1,6 @@
+.pytest_cache/
+cluster_cli.egg-info/
+htmlcov/
+.coverage
+.gitignore
+.travis.yml

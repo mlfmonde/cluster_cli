@@ -1,5 +1,12 @@
 language: python
 
+services:
+  - docker
+
+env:
+  global:
+    - IMAGE=mlfmonde/cluster_cli
+    - TAG=latest
 
 python:
   - "3.5"
@@ -20,9 +27,11 @@ install:
   - pip install -r requirements.tests.txt
   - python setup.py develop
   - pip install coveralls
+  - docker build -t $IMAGE:$TAG .
 
 script:
   - py.test --cov=cluster -v --pep8
 
 after_success:
-  coveralls
+  - coveralls
+  - if [ ! -z "$TRAVIS_PULL_REQUEST" ]; then docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD && docker push $IMAGE:$TAG; fi

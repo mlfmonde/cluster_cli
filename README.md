@@ -57,6 +57,12 @@ Logging params:
   --logging-format LOGGING_FORMAT
 ```
 
+The default consul value is ``http://localhost:8500`` so you may want to
+create a ssh tunnel to access to your consul before running this client
+
+```bash
+ssh -L 8500:localhost:8500 consul.host.org
+```
 
 ### Checks
 
@@ -180,6 +186,12 @@ optional arguments:
 ## Install
 
 This tool is tested on python 3.5 ans greater
+
+### Using docker image
+
+```bash
+docker run -it --rm --network host mlfminde/cluster_cli -h
+```
 
 ### On you hosted python to use it
 
