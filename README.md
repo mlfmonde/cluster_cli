@@ -133,7 +133,8 @@ your app before migrate) target data will be lost.
 
 
 ```bash
-$ cluster migrate -husage: cluster migrate [-h] [--target-repo TARGET_REPO] [-w] [-t TIMEOUT]
+$ cluster migrate -h
+usage: cluster migrate [-h] [--target-repo TARGET_REPO] [-w] [-t TIMEOUT]
                        source_repo source_branch target_branch
 
 positional arguments:
