@@ -110,12 +110,10 @@ optional arguments:
   --master NODE         Node where to deploy the master (required for new
                         service)
   --slave NODE          Slave node
-  -w, --wait            Wait the end of deployment before stop the script.
-                        Raise anexception if deployment failed in the given
-                        time
+  -d, --no-wait         Run the script in detached mode : do not wait the end of deployment to stop the script.
   -t TIMEOUT, --timeout TIMEOUT
                         Time in second to let a chance to deploy the service
-                        beforeraising an exception (ignored without ``--wait``
+                        beforeraising an exception (ignored with ``--no-wait``
                         option)
 ```
 ### Migrate
@@ -149,12 +147,10 @@ optional arguments:
   --target-repo TARGET_REPO
                         The target repo if different to the source-repo where
                         data will be restored.
-  -w, --wait            Wait the end of deployment before stop the script.
-                        Raise anexception if deployment failed in the given
-                        time
+  -d, --no-wait         Run the script in detached mode : do not wait the end of deployment to stop the script.
   -t TIMEOUT, --timeout TIMEOUT
                         Time in second to let a chance to deploy the service
-                        beforeraising an exception (ignored without ``--wait``
+                        beforeraising an exception (ignored with ``--no-wait``
                         option)
 ```
 
@@ -175,12 +171,10 @@ optional arguments:
   -m MASTER, --master MASTER
                         Node to use if no replicate (slave) define on a
                         service, otherwise slave will be used as master.
-  -w, --wait            Wait the end of deployment before sending next event.
-                        Raise anexception if deployment failed in the given
-                        time
+  -d, --no-wait         Run the script in detached mode : do not wait the end of deployment to stop the script.
   -t TIMEOUT, --timeout TIMEOUT
                         Time in second to let a chance to deploy the service
-                        beforeraising an exception (ignored without ``--wait``
+                        beforeraising an exception (ignored with ``--no-wait``
                         option)
 ```
 

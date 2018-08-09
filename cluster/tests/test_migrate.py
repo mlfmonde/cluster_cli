@@ -22,7 +22,7 @@ class TestMigrate(ClusterTestCase):
                     'target-branch',
                     '--target-repo',
                     'reponame2',
-                    '--wait',
+                    '--no-wait',
                     '-t',
                     '5',
                 ]
@@ -34,7 +34,7 @@ class TestMigrate(ClusterTestCase):
                     'source-branch',
                     'target-branch',
                     target_repo='reponame2',
-                    wait=True,
+                    no_wait=True,
                     timeout=5,
                     ask_user=False
                 )
@@ -121,7 +121,7 @@ class TestMigrate(ClusterTestCase):
             'prod',
             'branch-name',
             target_repo='repo-name',
-            wait=True,
+            no_wait=False,
             ask_user=False
         )
 
