@@ -125,6 +125,6 @@ class TestChecks(ClusterTestCase):
                     "\n".join([
                         "Node node-2:",
                         " - Service Service 3:",
-                        "    - Cehck (critical): Check Service 3",
+                        "    - Check (critical): Check Service 3",
                     ])
                 )

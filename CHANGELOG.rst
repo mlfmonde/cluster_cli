@@ -4,6 +4,8 @@ Change log
 Unreleased
 ----------
 
+* Improve various user feedback/usage, add confirmation, logging config and typo
+
 * Implement move-masters-from to move all services hosted on the given node
 
 * Implement migrate subcommand to move buttervolume docker volumes from a

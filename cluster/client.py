@@ -129,7 +129,7 @@ def main():
         'move-masters-from',
         help='If you want to do some maintenance operation on the host server.'
              'This command will helps you to send all events to services'
-             'hosted on the given node to its slave ok the wished master'
+             'hosted on the given node to its slave or the wished master'
     )
     parser_move_masters_from.add_argument(
         'node',
@@ -167,7 +167,7 @@ def main():
             for _, service in services.items():
                 print(" - Service {}:".format(service['name']))
                 for name, status, _ in service['checks']:
-                    print("    - Cehck ({}): {}".format(status, name))
+                    print("    - Check ({}): {}".format(status, name))
 
     def cluster_deploy(args):
         cluster = init(args)
