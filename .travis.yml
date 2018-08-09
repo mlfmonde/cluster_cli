@@ -12,7 +12,6 @@ env:
 python:
   - "3.5"
   - "3.6"
-  - "3.7"
   - "3.6-dev" # 3.6 development branch
   - "3.7-dev" # 3.7 development branch
   - "nightly"
@@ -40,7 +39,6 @@ jobs:
   include:
     - name: publish-docker-image
       if: branch = master AND type != pull_request
-      python: 3.7
       script:
         - docker build -t $IMAGE:$TAG .
         - docker run --rm $IMAGE:$TAG
