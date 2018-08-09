@@ -1,6 +1,5 @@
 language: python
 
-sudo: required
 
 services:
   - docker
@@ -30,13 +29,19 @@ install:
   - pip install -r requirements.tests.txt
   - python setup.py develop
   - pip install coveralls
-  - docker build -t $IMAGE:$TAG .
 
 script:
   - py.test --cov=cluster -v --pep8
-  - docker run --rm $IMAGE:$TAG
-  - coveralls
 
 after_success:
-  if: branch = master AND type = pull_request AND env(TRAVIS_PYTHON_VERSION) = 3.7
-  - echo "$DOCKER_HUB_PASSWORD" | docker login -u $DOCKER_HUB_USERNAME --password-stdin && docker push $IMAGE:$TAG
+  coveralls
+
+jobs:
+  include:
+    - name: publish-docker-image
+      if: branch = master AND type != pull_request
+      python: 3.7
+      script:
+      - docker build -t $IMAGE:$TAG .
+      - docker run --rm $IMAGE:$TAG
+      - echo "$DOCKER_HUB_PASSWORD" | docker login -u $DOCKER_HUB_USERNAME --password-stdin && docker push $IMAGE:$TAG
