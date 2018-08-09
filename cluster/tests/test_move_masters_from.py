@@ -1,10 +1,10 @@
-import json
-
 from unittest import mock
 
 from cluster.client import main
 from cluster import cluster
-from cluster.tests.cluster_test_case import ClusterTestCase, Counter
+from cluster.tests.cluster_test_case import ClusterTestCase
+
+from testfixtures import OutputCapture
 
 
 class TestMoveMastersFrom(ClusterTestCase):
@@ -14,13 +14,14 @@ class TestMoveMastersFrom(ClusterTestCase):
                 'sys.argv',
                 [
                     'cluster',
+                    '-y',
                     'move-masters-from',
                     'node-1',
                     '--master',
                     'node-2',
                     '--wait',
                     '-t',
-                    '5'
+                    '5',
                 ]
         ):
             with mock.patch('cluster.cluster.Cluster.move_masters_from') as mo:
@@ -29,10 +30,12 @@ class TestMoveMastersFrom(ClusterTestCase):
                     'node-1',
                     master='node-2',
                     wait=True,
-                    timeout=5
+                    timeout=5,
+                    ask_user=False
                 )
 
-    def test_move_masters_from(self):
+    @mock.patch('cluster.util.get_input', return_value='yes')
+    def test_move_masters_from(self, _):
         self.init_mocks(extra={
             "master": 'node-1',
             "slave": 'node-2',
@@ -72,7 +75,8 @@ class TestMoveMastersFrom(ClusterTestCase):
                 any_order=True
             )
 
-    def test_move_masters_from_with_no_slave(self):
+    @mock.patch('cluster.util.get_input', return_value='yes')
+    def test_move_masters_from_with_no_slave(self, _):
         self.init_mocks(extra={
             "master": 'node-1',
             "slave": None,
@@ -145,4 +149,17 @@ class TestMoveMastersFrom(ClusterTestCase):
             RuntimeError,
             self.cluster.move_masters_from,
             'node-1',
+        )
+
+    @mock.patch('cluster.util.get_input', return_value='no')
+    def test_answer_no(self, _):
+        self.init_mocks(extra={
+            "master": 'node-1',
+            "slave": 'node-2',
+        })
+        with OutputCapture() as output:
+            # code under test
+            self.cluster.move_masters_from('node-1')
+        self.assertTrue(
+            "Not confirmed, Aborting" in output.captured
         )

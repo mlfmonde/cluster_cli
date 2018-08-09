@@ -1,4 +1,6 @@
 import argparse
+import json
+import logging
 
 from cluster import cluster
 
@@ -12,6 +14,28 @@ def main():
         '--consul', '-c',
         help="consul api url",
         default="http://localhost:8500"
+    )
+    parser.add_argument(
+        '-y', '--assume-yes', action='store_true',
+        help="Always answers ``yes`` to any questions."
+    )
+    logging_group = parser.add_argument_group(
+        'Logging params'
+    )
+    logging_group.add_argument(
+        '-f',
+        '--logging-file',
+        type=argparse.FileType('r'),
+        help='Logging configuration file, (logging-level and logging-format '
+             'are ignored if provide)'
+    )
+    logging_group.add_argument(
+        '-l', '--logging-level', default='WARN'
+    )
+    logging_group.add_argument(
+        '--logging-format',
+        default='%(asctime)s - %(levelname)s (%(module)s%(funcName)s): '
+                '%(message)s'
     )
     subparsers = parser.add_subparsers(help='sub-commands')
     parser_checks = subparsers.add_parser(
@@ -105,7 +129,7 @@ def main():
         'move-masters-from',
         help='If you want to do some maintenance operation on the host server.'
              'This command will helps you to send all events to services'
-             'hosted on the given node to its slave ok the wished master'
+             'hosted on the given node to its slave or the wished master'
     )
     parser_move_masters_from.add_argument(
         'node',
@@ -143,7 +167,7 @@ def main():
             for _, service in services.items():
                 print(" - Service {}:".format(service['name']))
                 for name, status, _ in service['checks']:
-                    print("    - Cehck ({}): {}".format(status, name))
+                    print("    - Check ({}): {}".format(status, name))
 
     def cluster_deploy(args):
         cluster = init(args)
@@ -153,7 +177,8 @@ def main():
             master=args.master,
             slave=args.slave,
             wait=args.wait,
-            timeout=args.timeout
+            timeout=args.timeout,
+            ask_user=not args.assume_yes
         )
 
     def cluster_migrate(cmd_args):
@@ -164,7 +189,8 @@ def main():
             cmd_args.target_branch,
             target_repo=cmd_args.target_repo,
             wait=cmd_args.wait,
-            timeout=cmd_args.timeout
+            timeout=cmd_args.timeout,
+            ask_user=not arguments.assume_yes
         )
 
     def cluster_move_masters_from(args):
@@ -173,7 +199,8 @@ def main():
             args.node,
             master=args.master,
             wait=args.wait,
-            timeout=args.timeout
+            timeout=args.timeout,
+            ask_user=not args.assume_yes
         )
 
     parser_checks.set_defaults(func=cluster_checks)
@@ -181,8 +208,20 @@ def main():
     parser_migrate.set_defaults(func=cluster_migrate)
     parser_move_masters_from.set_defaults(func=cluster_move_masters_from)
 
-    args = parser.parse_args()
-    if hasattr(args, 'func'):
-        args.func(args)
+    arguments = parser.parse_args()
+
+    logging.basicConfig(
+        level=getattr(logging, arguments.logging_level.upper()),
+        format=arguments.logging_format
+    )
+    if arguments.logging_file:
+        try:
+            json_config = json.loads(arguments.logging_file.read())
+            logging.config.dictConfig(json_config)
+        except json.JSONDecodeError:
+            logging.config.fileConfig(arguments.logging_file.name)
+
+    if hasattr(arguments, 'func'):
+        arguments.func(arguments)
     else:
         parser.print_help()

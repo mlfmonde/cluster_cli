@@ -1,5 +1,6 @@
 import json
 
+from testfixtures import OutputCapture
 from unittest import mock
 
 from cluster.client import main
@@ -14,6 +15,7 @@ class TestMigrate(ClusterTestCase):
                 'sys.argv',
                 [
                     'cluster',
+                    '-y',
                     'migrate',
                     'reponame',
                     'source-branch',
@@ -22,7 +24,7 @@ class TestMigrate(ClusterTestCase):
                     'reponame2',
                     '--wait',
                     '-t',
-                    '5'
+                    '5',
                 ]
         ):
             with mock.patch('cluster.cluster.Cluster.migrate') as mo:
@@ -33,10 +35,12 @@ class TestMigrate(ClusterTestCase):
                     'target-branch',
                     target_repo='reponame2',
                     wait=True,
-                    timeout=5
+                    timeout=5,
+                    ask_user=False
                 )
 
-    def test_migrate(self):
+    @mock.patch('cluster.util.get_input', return_value='yes')
+    def test_migrate(self, _):
         self.init_mocks(extra={
             "repo_url": "ssh://git@git.example.org:2222/services/migrate-repo"}
         )
@@ -117,5 +121,18 @@ class TestMigrate(ClusterTestCase):
             'prod',
             'branch-name',
             target_repo='repo-name',
-            wait=True
+            wait=True,
+            ask_user=False
+        )
+
+    @mock.patch('cluster.util.get_input', return_value='no')
+    def test_migrate_says_no(self, _):
+        self.init_mocks(extra={
+            "repo_url": "ssh://git@git.example.org:2222/services/migrate-repo"}
+        )
+        with OutputCapture() as output:
+            # code under test
+            self.cluster.migrate('migrate-repo', 'prod', 'qualif')
+        self.assertTrue(
+            "Not confirmed, Aborting" in output.captured
         )

@@ -20,7 +20,8 @@ Use the embedded help command, to know the list of available commands:
 
 ```bash
 $ cluster -h
-usage: cluster [-h] [--consul CONSUL]
+usage: cluster [-h] [--consul CONSUL] [-y] [-f LOGGING_FILE]
+               [-l LOGGING_LEVEL] [--logging-format LOGGING_FORMAT]
                {checks,deploy,migrate,move-masters-from} ...
 
 Command line utility to administrate cluster
@@ -40,16 +41,30 @@ positional arguments:
     move-masters-from   If you want to do some maintenance operation on the
                         host server.This command will helps you to send all
                         events to serviceshosted on the given node to its
-                        slave ok the wished master
+                        slave or the wished master
 
 optional arguments:
   -h, --help            show this help message and exit
   --consul CONSUL, -c CONSUL
                         consul api url
+  -y, --assume-yes      Always answers ``yes`` to any questions.
+
+Logging params:
+  -f LOGGING_FILE, --logging-file LOGGING_FILE
+                        Logging configuration file, (logging-level and
+                        logging-format are ignored if provide)
+  -l LOGGING_LEVEL, --logging-level LOGGING_LEVEL
+  --logging-format LOGGING_FORMAT
 ```
 
+The default consul value is ``http://localhost:8500`` so you may want to
+create a ssh tunnel to access to your consul before running this client
 
-### checks
+```bash
+ssh -L 8500:localhost:8500 consul.host.org
+```
+
+### Checks
 
 List [consul health checks](https://www.consul.io/api/health.html) per nodes
 and service.
@@ -71,7 +86,7 @@ Node node-3
      - Cehck (critical): Service 'ABC' check
 ```
 
-### deploy
+### Deploy
 
 Re-deploy a service.
 
@@ -87,7 +102,7 @@ usage: cluster deploy [-h] [--master NODE] [--slave NODE] [-w] [-t TIMEOUT]
 positional arguments:
   repo                  The repo name or whole form
                         (ssh://git@git.example.com:22/project-slug/repo-name)
-                        for new service.
+                        for new service
   branch                The branch to deploy
 
 optional arguments:
@@ -103,7 +118,7 @@ optional arguments:
                         beforeraising an exception (ignored without ``--wait``
                         option)
 ```
-### migrate
+### Migrate
 
 Migrate buttervolume (docker volume) data from a service to another one. 
  
@@ -118,8 +133,7 @@ your app before migrate) target data will be lost.
 
 
 ```bash
-$ cluster migrate -h
-usage: cluster migrate [-h] [--target-repo TARGET_REPO] [-w] [-t TIMEOUT]
+$ cluster migrate -husage: cluster migrate [-h] [--target-repo TARGET_REPO] [-w] [-t TIMEOUT]
                        source_repo source_branch target_branch
 
 positional arguments:
@@ -148,7 +162,7 @@ optional arguments:
 This script allow to move all masters hosted on the given node away.
 
 ```bash
-cluster move-masters-from -h
+$ cluster move-masters-from -h
 usage: cluster move-masters-from [-h] [-m MASTER] [-w] [-t TIMEOUT] node
 
 positional arguments:
@@ -171,7 +185,21 @@ optional arguments:
 
 ## Install
 
-### on you hosted python to use it
+This tool is tested on python 3.5 ans greater
+
+### Using docker image
+
+```bash
+docker run -it --rm --network host mlfminde/cluster_cli -h
+```
+
+### On you hosted python to use it
+
+```bash
+$ pip3 install git+https://github.com/mlfmonde/cluster_cli@master
+```
+
+or
 
 ```bash
 $ git clone https://github.com/mlfmonde/cluster_cli
