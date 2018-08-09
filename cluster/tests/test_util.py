@@ -9,7 +9,7 @@ class TestUtils(unittest.TestCase):
             """{
                 "dict_var": {
                     "dict-var2": {
-                        "string-var": "a string",
+                        "string.var": "a string",
                         "int_var": 123,
                         "string-list": [
                             "el1",

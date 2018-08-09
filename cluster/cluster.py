@@ -105,7 +105,8 @@ class Cluster:
             master=None,
             slave=None,
             wait=False,
-            timeout=DEFAULT_TIMEOUT
+            timeout=DEFAULT_TIMEOUT,
+            ask_user=True
     ):
         key, app = self.get_kv_application(repo_name, branch)
         if master and slave and master == slave:
@@ -162,6 +163,24 @@ class Cluster:
                     new_slave
                 )
             )
+        if ask_user:
+            print(
+                "You are going to move following app {} from "
+                "[master: {} - replicate: {}] to "
+                "[master: {} - replicate: {}]".format(
+                    key,
+                    app.master if app else None,
+                    app.slave if app else None,
+                    new_master,
+                    new_slave
+                )
+            )
+            answer = util.get_input("Please confim by entering 'yes': ")
+            if answer.strip().lower() != 'yes':
+                print("Not confirmed, Aborting")
+                logging.critical("Not confirmed. Aborting")
+                return
+
         self._deploy(
             key,
             repo_url,
@@ -173,7 +192,12 @@ class Cluster:
         )
 
     def move_masters_from(
-        self, node, master=None, wait=False, timeout=DEFAULT_TIMEOUT
+        self,
+        node,
+        master=None,
+        wait=False,
+        timeout=DEFAULT_TIMEOUT,
+        ask_user=True
     ):
         move_apps = []
         for key, value in self.consul.kv.find('app/').items():
@@ -212,7 +236,20 @@ class Cluster:
                         app.master if app.slave else None,
                     )
                 )
-        # logger.info("Project {} will be moved from {} to {}")
+
+        if ask_user:
+            print("You are going to move following apps:")
+            for key, app, mstr, _ in move_apps:
+                print(" - from {} to {}, project: {}".format(
+                    app.master,
+                    mstr,
+                    key
+                ))
+            answer = util.get_input("Please confim by entering 'yes': ")
+            if answer.strip().lower() != 'yes':
+                print("Not confirmed, Aborting")
+                logging.critical("Not confirmed. Aborting")
+                return
         for key, app, mstr, slave in move_apps:
             self._deploy(
                 key,
@@ -291,7 +328,8 @@ class Cluster:
             target_branch,
             target_repo=None,
             wait=False,
-            timeout=DEFAULT_TIMEOUT
+            timeout=DEFAULT_TIMEOUT,
+            ask_user=True
     ):
 
         if not target_repo:
@@ -324,6 +362,18 @@ class Cluster:
             )
         self.was_maintenance = False
 
+        if ask_user:
+            print(
+                "You are on the way to replace common docker volumes on "
+                " service {} by data from {}".format(
+                    target_key, source_key
+                )
+            )
+            answer = util.get_input("Please confim by entering 'yes': ")
+            if answer.strip().lower() != 'yes':
+                print("Not confirmed, Aborting")
+                logging.critical("Not confirmed. Aborting")
+                return
         self._fire_event(
             target_key,
             'migrate',

@@ -13,6 +13,10 @@ def main():
         help="consul api url",
         default="http://localhost:8500"
     )
+    parser.add_argument(
+        '-y', '--assume-yes', action='store_true',
+        help="Always answers ``yes`` to any questions."
+    )
     subparsers = parser.add_subparsers(help='sub-commands')
     parser_checks = subparsers.add_parser(
         'checks', help='List consul health checks per nodes/service'
@@ -153,7 +157,8 @@ def main():
             master=args.master,
             slave=args.slave,
             wait=args.wait,
-            timeout=args.timeout
+            timeout=args.timeout,
+            ask_user=not args.assume_yes
         )
 
     def cluster_migrate(cmd_args):
@@ -164,7 +169,8 @@ def main():
             cmd_args.target_branch,
             target_repo=cmd_args.target_repo,
             wait=cmd_args.wait,
-            timeout=cmd_args.timeout
+            timeout=cmd_args.timeout,
+            ask_user=not args.assume_yes
         )
 
     def cluster_move_masters_from(args):
@@ -173,7 +179,8 @@ def main():
             args.node,
             master=args.master,
             wait=args.wait,
-            timeout=args.timeout
+            timeout=args.timeout,
+            ask_user=not args.assume_yes
         )
 
     parser_checks.set_defaults(func=cluster_checks)

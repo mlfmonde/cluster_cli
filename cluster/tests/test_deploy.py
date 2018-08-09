@@ -1,6 +1,7 @@
 import json
 
 from unittest import mock
+from testfixtures import OutputCapture
 
 from cluster.client import main
 from cluster import cluster
@@ -22,7 +23,8 @@ class TestDeploy(ClusterTestCase):
                     master=None,
                     slave=None,
                     wait=False,
-                    timeout=cluster.DEFAULT_TIMEOUT
+                    timeout=cluster.DEFAULT_TIMEOUT,
+                    ask_user=True
                 )
 
     def test_command_line_new_service(self):
@@ -30,6 +32,7 @@ class TestDeploy(ClusterTestCase):
                 'sys.argv',
                 [
                     'cluster',
+                    '-y',
                     'deploy',
                     '--master',
                     'master-node',
@@ -50,14 +53,12 @@ class TestDeploy(ClusterTestCase):
                     master='master-node',
                     slave='slave-node',
                     wait=True,
-                    timeout=10
+                    timeout=10,
+                    ask_user=False
                 )
 
-    def test_deploy(self):
-        self.init_mocks()
-        self.cluster.deploy('repo-name', 'branch-name')
-
-    def test_deploy_switch(self):
+    @mock.patch('cluster.util.get_input', return_value='Yes')
+    def test_deploy_switch(self, _):
         self.init_mocks()
         with mock.patch('cluster.cluster.Cluster._deploy') as mo:
             self.cluster.deploy('repo-name', 'branch-name')
@@ -71,7 +72,8 @@ class TestDeploy(ClusterTestCase):
                 timeout=cluster.DEFAULT_TIMEOUT
             )
 
-    def test_deploy_switch_master_only(self):
+    @mock.patch('cluster.util.get_input', return_value='Yes')
+    def test_deploy_switch_master_only(self, _):
         self.init_mocks({"slave": None})
         with mock.patch('cluster.cluster.Cluster._deploy') as mo:
             self.cluster.deploy('repo-name', 'branch-name')
@@ -85,7 +87,8 @@ class TestDeploy(ClusterTestCase):
                 timeout=cluster.DEFAULT_TIMEOUT
             )
 
-    def test_deploy_master_slave_force_master_on_same_node(self):
+    @mock.patch('cluster.util.get_input', return_value='Yes')
+    def test_deploy_master_slave_force_master_on_same_node(self, _):
         self.init_mocks()
         with mock.patch('cluster.cluster.Cluster._deploy') as mo:
             self.cluster.deploy(
@@ -101,7 +104,8 @@ class TestDeploy(ClusterTestCase):
                 timeout=cluster.DEFAULT_TIMEOUT
             )
 
-    def test_deploy_master_slave_force_master_on_current_slave(self):
+    @mock.patch('cluster.util.get_input', return_value='Yes')
+    def test_deploy_master_slave_force_master_on_current_slave(self, _):
         self.init_mocks()
         with mock.patch('cluster.cluster.Cluster._deploy') as mo:
             self.cluster.deploy(
@@ -117,7 +121,8 @@ class TestDeploy(ClusterTestCase):
                 timeout=cluster.DEFAULT_TIMEOUT
             )
 
-    def test_deploy_master_slave_force_master_on_new_node(self):
+    @mock.patch('cluster.util.get_input', return_value='Yes')
+    def test_deploy_master_slave_force_master_on_new_node(self, _):
         self.init_mocks()
         with mock.patch('cluster.cluster.Cluster._deploy') as mo:
             self.cluster.deploy(
@@ -137,7 +142,11 @@ class TestDeploy(ClusterTestCase):
         self.init_mocks()
         with mock.patch('cluster.cluster.Cluster._deploy') as mo:
             self.cluster.deploy(
-                'repo-name', 'branch-name', master='node-3', slave='node-4'
+                'repo-name',
+                'branch-name',
+                master='node-3',
+                slave='node-4',
+                ask_user=False
             )
             mo.assert_called_once_with(
                 'app/repo-name_branch-name.739a5',
@@ -146,10 +155,11 @@ class TestDeploy(ClusterTestCase):
                 'node-3',
                 slave='node-4',
                 wait=False,
-                timeout=cluster.DEFAULT_TIMEOUT
+                timeout=cluster.DEFAULT_TIMEOUT,
             )
 
-    def test_deploy_master_slave_force_master_slave_same_nodes(self):
+    @mock.patch('cluster.util.get_input', return_value='Yes')
+    def test_deploy_master_slave_force_master_slave_same_nodes(self, _):
         self.init_mocks()
         with mock.patch('cluster.cluster.Cluster._deploy') as mo:
             self.cluster.deploy(
@@ -165,7 +175,8 @@ class TestDeploy(ClusterTestCase):
                 timeout=cluster.DEFAULT_TIMEOUT
             )
 
-    def test_deploy_master_slave_force_master_slave_switch_nodes(self):
+    @mock.patch('cluster.util.get_input', return_value='Yes')
+    def test_deploy_master_slave_force_master_slave_switch_nodes(self, _):
         self.init_mocks()
         with mock.patch('cluster.cluster.Cluster._deploy') as mo:
             self.cluster.deploy(
@@ -212,7 +223,8 @@ class TestDeploy(ClusterTestCase):
             slave='node-5',
         )
 
-    def test_deploy_master_only_force_master_same_master(self):
+    @mock.patch('cluster.util.get_input', return_value='Yes')
+    def test_deploy_master_only_force_master_same_master(self, _):
         self.init_mocks({"slave": None})
         with mock.patch('cluster.cluster.Cluster._deploy') as mo:
             self.cluster.deploy(
@@ -228,7 +240,8 @@ class TestDeploy(ClusterTestCase):
                 timeout=cluster.DEFAULT_TIMEOUT
             )
 
-    def test_deploy_master_only_force_master_new_master(self):
+    @mock.patch('cluster.util.get_input', return_value='Yes')
+    def test_deploy_master_only_force_master_new_master(self, _):
         self.init_mocks({"slave": None})
         with mock.patch('cluster.cluster.Cluster._deploy') as mo:
             self.cluster.deploy(
@@ -244,7 +257,8 @@ class TestDeploy(ClusterTestCase):
                 timeout=cluster.DEFAULT_TIMEOUT
             )
 
-    def test_deploy_master_only_force_slave_becomes_replicate(self):
+    @mock.patch('cluster.util.get_input', return_value='Yes')
+    def test_deploy_master_only_force_slave_becomes_replicate(self, _):
         self.init_mocks({"slave": None})
         with mock.patch('cluster.cluster.Cluster._deploy') as mo:
             self.cluster.deploy(
@@ -261,8 +275,9 @@ class TestDeploy(ClusterTestCase):
                 timeout=cluster.DEFAULT_TIMEOUT
             )
 
+    @mock.patch('cluster.util.get_input', return_value='Yes')
     def test_deploy_master_only_becomes_replicate_force_slave_conflict_master(
-            self
+            self, _
     ):
         self.init_mocks({"slave": None})
         self.assertRaises(
@@ -273,7 +288,8 @@ class TestDeploy(ClusterTestCase):
             slave='node-1'
         )
 
-    def test_deploy_master_slave_force_slave_new_nodes(self):
+    @mock.patch('cluster.util.get_input', return_value='Yes')
+    def test_deploy_master_slave_force_slave_new_nodes(self, _):
         self.init_mocks()
         with mock.patch('cluster.cluster.Cluster._deploy') as mo:
             self.cluster.deploy(
@@ -289,7 +305,8 @@ class TestDeploy(ClusterTestCase):
                 timeout=cluster.DEFAULT_TIMEOUT
             )
 
-    def test_deploy_master_slave_force_slave_same_node(self):
+    @mock.patch('cluster.util.get_input', return_value='Yes')
+    def test_deploy_master_slave_force_slave_same_node(self, _):
         self.init_mocks()
         with mock.patch('cluster.cluster.Cluster._deploy') as mo:
             self.cluster.deploy(
@@ -305,7 +322,8 @@ class TestDeploy(ClusterTestCase):
                 timeout=cluster.DEFAULT_TIMEOUT
             )
 
-    def test_deploy_master_slave_force_slave_switch_nodes(self):
+    @mock.patch('cluster.util.get_input', return_value='YeS')
+    def test_deploy_master_slave_force_slave_switch_nodes(self, _):
         self.init_mocks()
         with mock.patch('cluster.cluster.Cluster._deploy') as mo:
             self.cluster.deploy(
@@ -321,7 +339,8 @@ class TestDeploy(ClusterTestCase):
                 timeout=cluster.DEFAULT_TIMEOUT
             )
 
-    def test_timeout(self):
+    @mock.patch('cluster.util.get_input', return_value='YEs')
+    def test_timeout(self, _):
         self.mocked_consul.configure_mock(**{
             'kv.find.return_value': {
                 "app/repo-name_branch-name.739a5": json.dumps(
@@ -345,7 +364,8 @@ class TestDeploy(ClusterTestCase):
             timeout=2
         )
 
-    def test_wait(self):
+    @mock.patch('cluster.util.get_input', return_value='YEs')
+    def test_wait(self, _):
         self.mocked_consul.configure_mock(**{
             'kv.find.return_value': {
                 "app/repo-name_branch-name.739a5": json.dumps(
@@ -366,7 +386,8 @@ class TestDeploy(ClusterTestCase):
             'repo-name', 'branch-name', wait=True
         )
 
-    def test_wait_existing_app(self):
+    @mock.patch('cluster.util.get_input', return_value='Yes')
+    def test_wait_existing_app(self, _):
         self.mocked_consul.configure_mock(**{
             'kv.find.return_value': {
                 "app/repo-name_branch-name.739a5": json.dumps(
@@ -389,7 +410,8 @@ class TestDeploy(ClusterTestCase):
             'repo-name', 'branch-name', wait=True, timeout=6
         )
 
-    def test_deploy_new_service(self):
+    @mock.patch('cluster.util.get_input', return_value='Yes')
+    def test_deploy_new_service(self, _):
         self.mocked_consul.configure_mock(**{
             'kv.find.return_value': {}
         })
@@ -408,6 +430,21 @@ class TestDeploy(ClusterTestCase):
                 slave=None,
                 wait=False,
                 timeout=cluster.DEFAULT_TIMEOUT
+            )
+
+    @mock.patch('cluster.util.get_input', return_value='no')
+    def test_deploy_answer_no(self, _):
+        self.init_mocks()
+        self.cluster.deploy(
+            'ssh://git@git.example.org/namespace/project.git',
+            'branch-name',
+            master='node-1'
+        )
+        with OutputCapture() as out:
+            # code under test
+            self.cluster.move_masters_from('node-1')
+            self.assertTrue(
+                "Not confirmed, Aborting" in out.captured
             )
 
     def test_deploy_new_service_no_nodes(self):
