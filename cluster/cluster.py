@@ -178,7 +178,7 @@ class Cluster:
             answer = util.get_input("Please confim by entering 'yes': ")
             if answer.strip().lower() != 'yes':
                 print("Not confirmed, Aborting")
-                logging.critical("Not confirmed. Aborting")
+                logger.warning("Not confirmed. Aborting")
                 return
 
         self._deploy(
@@ -248,7 +248,7 @@ class Cluster:
             answer = util.get_input("Please confim by entering 'yes': ")
             if answer.strip().lower() != 'yes':
                 print("Not confirmed, Aborting")
-                logging.critical("Not confirmed. Aborting")
+                logger.warning("Not confirmed. Aborting")
                 return
         for key, app, mstr, slave in move_apps:
             self._deploy(
@@ -372,7 +372,7 @@ class Cluster:
             answer = util.get_input("Please confim by entering 'yes': ")
             if answer.strip().lower() != 'yes':
                 print("Not confirmed, Aborting")
-                logging.critical("Not confirmed. Aborting")
+                logger.warning("Not confirmed. Aborting")
                 return
         self._fire_event(
             target_key,

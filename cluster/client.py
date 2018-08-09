@@ -1,4 +1,6 @@
 import argparse
+import json
+import logging
 
 from cluster import cluster
 
@@ -16,6 +18,24 @@ def main():
     parser.add_argument(
         '-y', '--assume-yes', action='store_true',
         help="Always answers ``yes`` to any questions."
+    )
+    logging_group = parser.add_argument_group(
+        'Logging params'
+    )
+    logging_group.add_argument(
+        '-f',
+        '--logging-file',
+        type=argparse.FileType('r'),
+        help='Logging configuration file, (logging-level and logging-format '
+             'are ignored if provide)'
+    )
+    logging_group.add_argument(
+        '-l', '--logging-level', default='WARN'
+    )
+    logging_group.add_argument(
+        '--logging-format',
+        default='%(asctime)s - %(levelname)s (%(module)s%(funcName)s): '
+                '%(message)s'
     )
     subparsers = parser.add_subparsers(help='sub-commands')
     parser_checks = subparsers.add_parser(
@@ -170,7 +190,7 @@ def main():
             target_repo=cmd_args.target_repo,
             wait=cmd_args.wait,
             timeout=cmd_args.timeout,
-            ask_user=not args.assume_yes
+            ask_user=not arguments.assume_yes
         )
 
     def cluster_move_masters_from(args):
@@ -188,8 +208,20 @@ def main():
     parser_migrate.set_defaults(func=cluster_migrate)
     parser_move_masters_from.set_defaults(func=cluster_move_masters_from)
 
-    args = parser.parse_args()
-    if hasattr(args, 'func'):
-        args.func(args)
+    arguments = parser.parse_args()
+
+    logging.basicConfig(
+        level=getattr(logging, arguments.logging_level.upper()),
+        format=arguments.logging_format
+    )
+    if arguments.logging_file:
+        try:
+            json_config = json.loads(arguments.logging_file.read())
+            logging.config.dictConfig(json_config)
+        except json.JSONDecodeError:
+            logging.config.fileConfig(arguments.logging_file.name)
+
+    if hasattr(arguments, 'func'):
+        arguments.func(arguments)
     else:
         parser.print_help()
