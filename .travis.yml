@@ -1,5 +1,7 @@
 language: python
 
+sudo: required
+
 services:
   - docker
 
@@ -11,6 +13,7 @@ env:
 python:
   - "3.5"
   - "3.6"
+  - "3.7"
   - "3.6-dev" # 3.6 development branch
   - "3.7-dev" # 3.7 development branch
   - "nightly"
@@ -32,7 +35,8 @@ install:
 script:
   - py.test --cov=cluster -v --pep8
   - docker run --rm $IMAGE:$TAG
+  - coveralls
 
 after_success:
-  - coveralls
-  - if [ ! -z "$TRAVIS_PULL_REQUEST" ]; then docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD && docker push $IMAGE:$TAG; fi
+  if: branch = master AND type = pull_request AND env(TRAVIS_PYTHON_VERSION) = 3.7
+  - echo "$DOCKER_HUB_PASSWORD" | docker login -u $DOCKER_HUB_USERNAME --password-stdin && docker push $IMAGE:$TAG
