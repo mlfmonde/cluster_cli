@@ -72,7 +72,8 @@ def main():
     parser_deploy.add_argument(
         '-d', '--no-wait',
         action='store_true',
-        help='Run the script in detached mode : do not wait the end of deployment to stop the script.'
+        help='Run the script in detached mode : do not wait the end of '
+             'deployment to stop the script.'
     )
     parser_deploy.add_argument(
         '-t', '--timeout',
@@ -114,7 +115,8 @@ def main():
     parser_migrate.add_argument(
         '-d', '--no-wait',
         action='store_true',
-        help='Run the script in detached mode : do not wait the end of deployment to stop the script.'
+        help='Run the script in detached mode : do not wait the end of '
+             'deployment to stop the script.'
     )
     parser_migrate.add_argument(
         '-t', '--timeout',
@@ -142,7 +144,8 @@ def main():
     parser_move_masters_from.add_argument(
         '-d', '--no-wait',
         action='store_true',
-        help='Run the script in detached mode : do not wait the end of deployment to stop the script.'
+        help='Run the script in detached mode : do not wait the end of '
+             'deployment to stop the script.'
     )
     parser_move_masters_from.add_argument(
         '-t', '--timeout',
