@@ -12,7 +12,7 @@ Features are:
 * deploy or switch services
 * migrate anybox/buttervolume docker volumes from one service to an other
 * clear a node by moving all services running on it
-
+* Run anywhere you can contact your consul API
 
 ## Commands
 
@@ -96,7 +96,7 @@ service it will try to switch master/slave. You can force master or slave only.
 
 ```bash
 $ cluster deploy -h
-usage: cluster deploy [-h] [--master NODE] [--slave NODE] [-w] [-t TIMEOUT]
+usage: cluster deploy [-h] [--master NODE] [--slave NODE] [-d] [-t TIMEOUT]
                       repo branch
 
 positional arguments:
@@ -110,7 +110,8 @@ optional arguments:
   --master NODE         Node where to deploy the master (required for new
                         service)
   --slave NODE          Slave node
-  -d, --no-wait         Run the script in detached mode : do not wait the end of deployment to stop the script.
+  -d, --no-wait         Run the script in detached mode : do not wait the end
+                        of deployment to stop the script.
   -t TIMEOUT, --timeout TIMEOUT
                         Time in second to let a chance to deploy the service
                         beforeraising an exception (ignored with ``--no-wait``
@@ -132,7 +133,7 @@ your app before migrate) target data will be lost.
 
 ```bash
 $ cluster migrate -h
-usage: cluster migrate [-h] [--target-repo TARGET_REPO] [-w] [-t TIMEOUT]
+usage: cluster migrate [-h] [--target-repo TARGET_REPO] [-d] [-t TIMEOUT]
                        source_repo source_branch target_branch
 
 positional arguments:
@@ -147,7 +148,8 @@ optional arguments:
   --target-repo TARGET_REPO
                         The target repo if different to the source-repo where
                         data will be restored.
-  -d, --no-wait         Run the script in detached mode : do not wait the end of deployment to stop the script.
+  -d, --no-wait         Run the script in detached mode : do not wait the end
+                        of deployment to stop the script.
   -t TIMEOUT, --timeout TIMEOUT
                         Time in second to let a chance to deploy the service
                         beforeraising an exception (ignored with ``--no-wait``
@@ -160,7 +162,7 @@ This script allow to move all masters hosted on the given node away.
 
 ```bash
 $ cluster move-masters-from -h
-usage: cluster move-masters-from [-h] [-m MASTER] [-w] [-t TIMEOUT] node
+usage: cluster move-masters-from [-h] [-m MASTER] [-d] [-t TIMEOUT] node
 
 positional arguments:
   node                  Node where services should not be hosted that we want
@@ -171,7 +173,8 @@ optional arguments:
   -m MASTER, --master MASTER
                         Node to use if no replicate (slave) define on a
                         service, otherwise slave will be used as master.
-  -d, --no-wait         Run the script in detached mode : do not wait the end of deployment to stop the script.
+  -d, --no-wait         Run the script in detached mode : do not wait the end
+                        of deployment to stop the script.
   -t TIMEOUT, --timeout TIMEOUT
                         Time in second to let a chance to deploy the service
                         beforeraising an exception (ignored with ``--no-wait``
@@ -184,8 +187,12 @@ This tool is tested on python 3.5 ans greater
 
 ### Using docker image
 
+> **Note**: The default ``--consul`` parameter is ``http://localhost:8500``
+> so you may want to create a ssh tunnel to access to your consul API
+> endpoint before running this client
+
 ```bash
-docker run -it --rm --network host mlfminde/cluster_cli -h
+docker run -it --rm --network host mlfmonde/cluster_cli -h
 ```
 
 ### On you hosted python to use it

@@ -4,6 +4,8 @@ Change log
 Unreleased
 ----------
 
+* wait the end of consumption before stop (replace --wait option per --no-wait)
+
 * Build docker image
 
 * Improve various user feedback/usage, add confirmation, logging config and typo
