@@ -19,7 +19,7 @@ class TestMoveMastersFrom(ClusterTestCase):
                     'node-1',
                     '--master',
                     'node-2',
-                    '--wait',
+                    '--no-wait',
                     '-t',
                     '5',
                 ]
@@ -29,7 +29,7 @@ class TestMoveMastersFrom(ClusterTestCase):
                 mo.assert_called_once_with(
                     'node-1',
                     master='node-2',
-                    wait=True,
+                    no_wait=True,
                     timeout=5,
                     ask_user=False
                 )
@@ -50,7 +50,7 @@ class TestMoveMastersFrom(ClusterTestCase):
                         'branch-name',
                         'node-2',
                         slave='node-1',
-                        wait=False,
+                        no_wait=False,
                         timeout=cluster.DEFAULT_TIMEOUT,
                     ),
                     mock.call(
@@ -59,7 +59,7 @@ class TestMoveMastersFrom(ClusterTestCase):
                         'qualif',
                         'node-2',
                         slave='node-1',
-                        wait=False,
+                        no_wait=False,
                         timeout=cluster.DEFAULT_TIMEOUT,
                     ),
                     mock.call(
@@ -68,7 +68,7 @@ class TestMoveMastersFrom(ClusterTestCase):
                         'prod',
                         'node-2',
                         slave='node-1',
-                        wait=False,
+                        no_wait=False,
                         timeout=cluster.DEFAULT_TIMEOUT,
                     ),
                 ],
@@ -91,7 +91,7 @@ class TestMoveMastersFrom(ClusterTestCase):
                         'branch-name',
                         'node-3',
                         slave=None,
-                        wait=False,
+                        no_wait=False,
                         timeout=cluster.DEFAULT_TIMEOUT,
                     ),
                     mock.call(
@@ -100,7 +100,7 @@ class TestMoveMastersFrom(ClusterTestCase):
                         'qualif',
                         'node-3',
                         slave=None,
-                        wait=False,
+                        no_wait=False,
                         timeout=cluster.DEFAULT_TIMEOUT,
                     ),
                     mock.call(
@@ -109,7 +109,7 @@ class TestMoveMastersFrom(ClusterTestCase):
                         'prod',
                         'node-3',
                         slave=None,
-                        wait=False,
+                        no_wait=False,
                         timeout=cluster.DEFAULT_TIMEOUT,
                     ),
                 ],

@@ -70,17 +70,17 @@ def main():
     )
 
     parser_deploy.add_argument(
-        '-w', '--wait',
+        '-d', '--no-wait',
         action='store_true',
-        help='Wait the end of deployment before stop the script. Raise an'
-             'exception if deployment failed in the given time'
+        help='Run the script in detached mode : do not wait the end of '
+             'deployment to stop the script.'
     )
     parser_deploy.add_argument(
         '-t', '--timeout',
         type=int,
         default=cluster.DEFAULT_TIMEOUT,
         help='Time in second to let a chance to deploy the service before'
-             'raising an exception (ignored without ``--wait`` option)'
+             'raising an exception (ignored with ``--no-wait`` option)'
     )
     parser_migrate = subparsers.add_parser(
         'migrate',
@@ -113,17 +113,17 @@ def main():
     )
 
     parser_migrate.add_argument(
-        '-w', '--wait',
+        '-d', '--no-wait',
         action='store_true',
-        help='Wait the end of deployment before stop the script. Raise an'
-             'exception if deployment failed in the given time'
+        help='Run the script in detached mode : do not wait the end of '
+             'deployment to stop the script.'
     )
     parser_migrate.add_argument(
         '-t', '--timeout',
         type=int,
         default=cluster.DEFAULT_TIMEOUT,
         help='Time in second to let a chance to deploy the service before'
-             'raising an exception (ignored without ``--wait`` option)'
+             'raising an exception (ignored with ``--no-wait`` option)'
     )
     parser_move_masters_from = subparsers.add_parser(
         'move-masters-from',
@@ -142,17 +142,17 @@ def main():
              "otherwise slave will be used as master."
     )
     parser_move_masters_from.add_argument(
-        '-w', '--wait',
+        '-d', '--no-wait',
         action='store_true',
-        help='Wait the end of deployment before sending next event. Raise an'
-             'exception if deployment failed in the given time'
+        help='Run the script in detached mode : do not wait the end of '
+             'deployment to stop the script.'
     )
     parser_move_masters_from.add_argument(
         '-t', '--timeout',
         type=int,
         default=cluster.DEFAULT_TIMEOUT,
         help='Time in second to let a chance to deploy the service before'
-             'raising an exception (ignored without ``--wait`` option)'
+             'raising an exception (ignored with ``--no-wait`` option)'
     )
 
     def init(args):
@@ -176,7 +176,7 @@ def main():
             args.branch,
             master=args.master,
             slave=args.slave,
-            wait=args.wait,
+            no_wait=args.no_wait,
             timeout=args.timeout,
             ask_user=not args.assume_yes
         )
@@ -188,7 +188,7 @@ def main():
             cmd_args.source_branch,
             cmd_args.target_branch,
             target_repo=cmd_args.target_repo,
-            wait=cmd_args.wait,
+            no_wait=cmd_args.no_wait,
             timeout=cmd_args.timeout,
             ask_user=not arguments.assume_yes
         )
@@ -198,7 +198,7 @@ def main():
         cluster.move_masters_from(
             args.node,
             master=args.master,
-            wait=args.wait,
+            no_wait=args.no_wait,
             timeout=args.timeout,
             ask_user=not args.assume_yes
         )

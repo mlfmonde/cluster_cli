@@ -104,7 +104,7 @@ class Cluster:
             branch,
             master=None,
             slave=None,
-            wait=False,
+            no_wait=False,
             timeout=DEFAULT_TIMEOUT,
             ask_user=True
     ):
@@ -187,7 +187,7 @@ class Cluster:
             branch,
             new_master,
             slave=new_slave,
-            wait=wait,
+            no_wait=no_wait,
             timeout=timeout
         )
 
@@ -195,7 +195,7 @@ class Cluster:
         self,
         node,
         master=None,
-        wait=False,
+        no_wait=False,
         timeout=DEFAULT_TIMEOUT,
         ask_user=True
     ):
@@ -257,7 +257,7 @@ class Cluster:
                 app.branch,
                 mstr,
                 slave=slave,
-                wait=wait,
+                no_wait=no_wait,
                 timeout=timeout
             )
 
@@ -269,7 +269,7 @@ class Cluster:
         branch,
         master,
         slave=None,
-        wait=False,
+        no_wait=False,
         timeout=DEFAULT_TIMEOUT,
         event_consumed=None
     ):
@@ -304,7 +304,7 @@ class Cluster:
                     'slave': slave,
                 }
             ),
-            wait,
+            no_wait,
             event_consumed,
             timeout
         )
@@ -327,7 +327,7 @@ class Cluster:
             source_branch,
             target_branch,
             target_repo=None,
-            wait=False,
+            no_wait=False,
             timeout=DEFAULT_TIMEOUT,
             ask_user=True
     ):
@@ -387,7 +387,7 @@ class Cluster:
                     }
                 }
             ),
-            wait,
+            no_wait,
             Cluster.migrate_finished,
             timeout
         )
@@ -397,7 +397,7 @@ class Cluster:
         kv_key,
         event_name,
         payload,
-        wait,
+        no_wait,
         event_consumed,
         timeout
     ):
@@ -410,7 +410,7 @@ class Cluster:
             event_name, payload
         )
         start_date = datetime.now()
-        while wait and not event_consumed(
+        while not no_wait and not event_consumed(
                 app_before,
                 util.json2obj(self.consul.kv.get(kv_key)),
                 maintenance=self.consul.kv.get_record(

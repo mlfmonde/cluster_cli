@@ -22,7 +22,7 @@ class TestDeploy(ClusterTestCase):
                     'branch',
                     master=None,
                     slave=None,
-                    wait=False,
+                    no_wait=False,
                     timeout=cluster.DEFAULT_TIMEOUT,
                     ask_user=True
                 )
@@ -38,7 +38,7 @@ class TestDeploy(ClusterTestCase):
                     'master-node',
                     '--slave',
                     'slave-node',
-                    '-w',
+                    '-d',
                     '-t',
                     '10',
                     'reponame',
@@ -52,7 +52,7 @@ class TestDeploy(ClusterTestCase):
                     'branch',
                     master='master-node',
                     slave='slave-node',
-                    wait=True,
+                    no_wait=True,
                     timeout=10,
                     ask_user=False
                 )
@@ -68,7 +68,7 @@ class TestDeploy(ClusterTestCase):
                 'branch-name',
                 'node-2',
                 slave='node-1',
-                wait=False,
+                no_wait=False,
                 timeout=cluster.DEFAULT_TIMEOUT
             )
 
@@ -83,7 +83,7 @@ class TestDeploy(ClusterTestCase):
                 'branch-name',
                 'node-1',
                 slave=None,
-                wait=False,
+                no_wait=False,
                 timeout=cluster.DEFAULT_TIMEOUT
             )
 
@@ -100,7 +100,7 @@ class TestDeploy(ClusterTestCase):
                 'branch-name',
                 'node-1',
                 slave='node-2',
-                wait=False,
+                no_wait=False,
                 timeout=cluster.DEFAULT_TIMEOUT
             )
 
@@ -117,7 +117,7 @@ class TestDeploy(ClusterTestCase):
                 'branch-name',
                 'node-2',
                 slave='node-1',
-                wait=False,
+                no_wait=False,
                 timeout=cluster.DEFAULT_TIMEOUT
             )
 
@@ -134,7 +134,7 @@ class TestDeploy(ClusterTestCase):
                 'branch-name',
                 'node-3',
                 slave='node-1',
-                wait=False,
+                no_wait=False,
                 timeout=cluster.DEFAULT_TIMEOUT
             )
 
@@ -154,7 +154,7 @@ class TestDeploy(ClusterTestCase):
                 'branch-name',
                 'node-3',
                 slave='node-4',
-                wait=False,
+                no_wait=False,
                 timeout=cluster.DEFAULT_TIMEOUT,
             )
 
@@ -171,7 +171,7 @@ class TestDeploy(ClusterTestCase):
                 'branch-name',
                 'node-1',
                 slave='node-2',
-                wait=False,
+                no_wait=False,
                 timeout=cluster.DEFAULT_TIMEOUT
             )
 
@@ -188,7 +188,7 @@ class TestDeploy(ClusterTestCase):
                 'branch-name',
                 'node-2',
                 slave='node-1',
-                wait=False,
+                no_wait=False,
                 timeout=cluster.DEFAULT_TIMEOUT
             )
 
@@ -236,7 +236,7 @@ class TestDeploy(ClusterTestCase):
                 'branch-name',
                 'node-1',
                 slave=None,
-                wait=False,
+                no_wait=False,
                 timeout=cluster.DEFAULT_TIMEOUT
             )
 
@@ -253,7 +253,7 @@ class TestDeploy(ClusterTestCase):
                 'branch-name',
                 'node-2',
                 slave=None,
-                wait=False,
+                no_wait=False,
                 timeout=cluster.DEFAULT_TIMEOUT
             )
 
@@ -271,7 +271,7 @@ class TestDeploy(ClusterTestCase):
                 'branch-name',
                 'node-1',
                 slave='node-2',
-                wait=False,
+                no_wait=False,
                 timeout=cluster.DEFAULT_TIMEOUT
             )
 
@@ -301,7 +301,7 @@ class TestDeploy(ClusterTestCase):
                 'branch-name',
                 'node-2',
                 slave='node-4',
-                wait=False,
+                no_wait=False,
                 timeout=cluster.DEFAULT_TIMEOUT
             )
 
@@ -318,7 +318,7 @@ class TestDeploy(ClusterTestCase):
                 'branch-name',
                 'node-1',
                 slave='node-2',
-                wait=False,
+                no_wait=False,
                 timeout=cluster.DEFAULT_TIMEOUT
             )
 
@@ -335,7 +335,7 @@ class TestDeploy(ClusterTestCase):
                 'branch-name',
                 'node-2',
                 slave='node-1',
-                wait=False,
+                no_wait=False,
                 timeout=cluster.DEFAULT_TIMEOUT
             )
 
@@ -360,7 +360,7 @@ class TestDeploy(ClusterTestCase):
             self.cluster.deploy,
             'repo-name',
             'branch-name',
-            wait=True,
+            no_wait=False,
             timeout=2
         )
 
@@ -383,7 +383,7 @@ class TestDeploy(ClusterTestCase):
             'kv.get.side_effect': kv_get
         })
         self.cluster.deploy(
-            'repo-name', 'branch-name', wait=True
+            'repo-name', 'branch-name', no_wait=False
         )
 
     @mock.patch('cluster.util.get_input', return_value='Yes')
@@ -407,7 +407,7 @@ class TestDeploy(ClusterTestCase):
             'kv.get.side_effect': kv_get
         })
         self.cluster.deploy(
-            'repo-name', 'branch-name', wait=True, timeout=6
+            'repo-name', 'branch-name', no_wait=False, timeout=6
         )
 
     @mock.patch('cluster.util.get_input', return_value='Yes')
@@ -428,7 +428,7 @@ class TestDeploy(ClusterTestCase):
                 'branch-name',
                 'node-1',
                 slave=None,
-                wait=False,
+                no_wait=False,
                 timeout=cluster.DEFAULT_TIMEOUT
             )
 
