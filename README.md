@@ -212,8 +212,8 @@ $ pip3 install .
 ### For development with a python virtualenv
 
 ```bash
-$ python3 -m venv clister_cli_venv
-$ source clister_cli_venv/bin/activate
+$ python3 -m venv cluster_cli_venv
+$ source cluster_cli_venv/bin/activate
 $ git clone https://github.com/mlfmonde/cluster_cli
 $ cd cluster_cli
 $ pip install -r requirements.tests.txt
