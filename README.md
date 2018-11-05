@@ -216,6 +216,7 @@ $ python3 -m venv cluster_cli_venv
 $ source cluster_cli_venv/bin/activate
 $ git clone https://github.com/mlfmonde/cluster_cli
 $ cd cluster_cli
+$ pip install -r requirements.txt
 $ pip install -r requirements.tests.txt
 $ python setup.py develop
 $ py.test --pep8 --cov=cluster --cov-report=html --lf --nf --ff -v
