@@ -38,6 +38,7 @@ def main():
                 '%(message)s'
     )
     subparsers = parser.add_subparsers(help='sub-commands')
+
     parser_checks = subparsers.add_parser(
         'checks', help='List consul health checks per nodes/service'
     )
@@ -45,6 +46,7 @@ def main():
         '-a', '--all', action='store_true',
         help='Display all checks (any states)'
     )
+
     parser_deploy = subparsers.add_parser(
         'deploy', help='Deploy or re-deploy a service'
     )
@@ -82,6 +84,7 @@ def main():
         help='Time in second to let a chance to deploy the service before'
              'raising an exception (ignored with ``--no-wait`` option)'
     )
+
     parser_migrate = subparsers.add_parser(
         'migrate',
         help='Migrate buttervolume (docker volume) data from a service '
@@ -111,7 +114,6 @@ def main():
         help='The target repo if different to the source-repo where data '
              'will be restored.'
     )
-
     parser_migrate.add_argument(
         '-d', '--no-wait',
         action='store_true',
@@ -125,6 +127,7 @@ def main():
         help='Time in second to let a chance to deploy the service before'
              'raising an exception (ignored with ``--no-wait`` option)'
     )
+
     parser_move_masters_from = subparsers.add_parser(
         'move-masters-from',
         help='If you want to do some maintenance operation on the host server.'
@@ -153,6 +156,15 @@ def main():
         default=cluster.DEFAULT_TIMEOUT,
         help='Time in second to let a chance to deploy the service before'
              'raising an exception (ignored with ``--no-wait`` option)'
+    )
+
+    parser_inspect = subparsers.add_parser(
+        'inspect',
+        help='Display all master services of given node.'
+    )
+    parser_inspect.add_argument(
+        'node',
+        help='Node where services should be inspected.'
     )
 
     def init(args):
@@ -203,10 +215,15 @@ def main():
             ask_user=not args.assume_yes
         )
 
+    def cluster_inspect(args):
+        cluster = init(args)
+        cluster.inspect_node(args.node)
+
     parser_checks.set_defaults(func=cluster_checks)
     parser_deploy.set_defaults(func=cluster_deploy)
     parser_migrate.set_defaults(func=cluster_migrate)
     parser_move_masters_from.set_defaults(func=cluster_move_masters_from)
+    parser_inspect.set_defaults(func=cluster_inspect)
 
     arguments = parser.parse_args()
 

@@ -261,6 +261,19 @@ class Cluster:
                 timeout=timeout
             )
 
+    def inspect_node(
+            self,
+            node,
+    ):
+        master_apps = []
+        for key, value in self.consul.kv.find('app/').items():
+            app = util.json2obj(value)
+            if app.master == node:
+                master_apps.append(key)
+
+        print("Master apps of node {node}:".format(node=node))
+        print("\n".join(master_apps))
+
     # communicate with consul
     def _deploy(
         self,
