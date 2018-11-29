@@ -68,6 +68,11 @@ def main():
         metavar='NODE',
         help='Slave node'
     )
+    parser_deploy.add_argument(
+        '-u', '--update',
+        action='store_true',
+        help='Ask for update (update script) before services are up'
+    )
 
     parser_deploy.add_argument(
         '-d', '--no-wait',
