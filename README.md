@@ -110,6 +110,7 @@ optional arguments:
   --master NODE         Node where to deploy the master (required for new
                         service)
   --slave NODE          Slave node
+  -u, --update          Ask for update (update script) before services are up
   -d, --no-wait         Run the script in detached mode : do not wait the end
                         of deployment to stop the script.
   -t TIMEOUT, --timeout TIMEOUT
