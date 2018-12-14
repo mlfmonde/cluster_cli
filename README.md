@@ -96,7 +96,8 @@ service it will try to switch master/slave. You can force master or slave only.
 
 ```bash
 $ cluster deploy -h
-usage: cluster deploy [-h] [--master NODE] [--slave NODE] [-d] [-t TIMEOUT]
+usage: cluster deploy [-h] [--master NODE] [--slave NODE] [-u] [-d]
+                      [-t TIMEOUT]
                       repo branch
 
 positional arguments:
