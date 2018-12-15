@@ -24,7 +24,8 @@ class TestDeploy(ClusterTestCase):
                     slave=None,
                     no_wait=False,
                     timeout=cluster.DEFAULT_TIMEOUT,
-                    ask_user=True
+                    ask_user=True,
+                    update=False
                 )
 
     def test_command_line_new_service(self):
@@ -54,7 +55,72 @@ class TestDeploy(ClusterTestCase):
                     slave='slave-node',
                     no_wait=True,
                     timeout=10,
-                    ask_user=False
+                    ask_user=False,
+                    update=False
+                )
+
+    def test_command_line_update_short(self):
+        with mock.patch(
+                'sys.argv',
+                [
+                    'cluster',
+                    '-y',
+                    'deploy',
+                    '--master',
+                    'master-node',
+                    '--slave',
+                    'slave-node',
+                    '-d',
+                    '-t',
+                    '10',
+                    'reponame',
+                    'branch',
+                    '-u'
+                ]
+        ):
+            with mock.patch('cluster.cluster.Cluster.deploy') as mo:
+                main()
+                mo.assert_called_once_with(
+                    'reponame',
+                    'branch',
+                    master='master-node',
+                    slave='slave-node',
+                    no_wait=True,
+                    timeout=10,
+                    ask_user=False,
+                    update=True
+                )
+
+    def test_command_line_update_long(self):
+        with mock.patch(
+                'sys.argv',
+                [
+                    'cluster',
+                    '-y',
+                    'deploy',
+                    '--master',
+                    'master-node',
+                    '--slave',
+                    'slave-node',
+                    '-d',
+                    '-t',
+                    '10',
+                    'reponame',
+                    'branch',
+                    '--update'
+                ]
+        ):
+            with mock.patch('cluster.cluster.Cluster.deploy') as mo:
+                main()
+                mo.assert_called_once_with(
+                    'reponame',
+                    'branch',
+                    master='master-node',
+                    slave='slave-node',
+                    no_wait=True,
+                    timeout=10,
+                    ask_user=False,
+                    update=True
                 )
 
     @mock.patch('cluster.util.get_input', return_value='Yes')

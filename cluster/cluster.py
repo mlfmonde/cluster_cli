@@ -271,7 +271,8 @@ class Cluster:
         slave=None,
         no_wait=False,
         timeout=DEFAULT_TIMEOUT,
-        event_consumed=None
+        event_consumed=None,
+        update=False
     ):
         """Deploy a service waiting the end end of deployment before carry on
         """
@@ -302,6 +303,7 @@ class Cluster:
                     'branch': branch,
                     'master': master,
                     'slave': slave,
+                    'update': update
                 }
             ),
             no_wait,

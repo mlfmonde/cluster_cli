@@ -96,7 +96,8 @@ service it will try to switch master/slave. You can force master or slave only.
 
 ```bash
 $ cluster deploy -h
-usage: cluster deploy [-h] [--master NODE] [--slave NODE] [-d] [-t TIMEOUT]
+usage: cluster deploy [-h] [--master NODE] [--slave NODE] [-u] [-d]
+                      [-t TIMEOUT]
                       repo branch
 
 positional arguments:
@@ -110,6 +111,7 @@ optional arguments:
   --master NODE         Node where to deploy the master (required for new
                         service)
   --slave NODE          Slave node
+  -u, --update          Ask for update (update script) before services are up
   -d, --no-wait         Run the script in detached mode : do not wait the end
                         of deployment to stop the script.
   -t TIMEOUT, --timeout TIMEOUT

@@ -68,6 +68,11 @@ def main():
         metavar='NODE',
         help='Slave node'
     )
+    parser_deploy.add_argument(
+        '-u', '--update',
+        action='store_true',
+        help='Ask for update (update script) before services are up'
+    )
 
     parser_deploy.add_argument(
         '-d', '--no-wait',
@@ -178,7 +183,8 @@ def main():
             slave=args.slave,
             no_wait=args.no_wait,
             timeout=args.timeout,
-            ask_user=not args.assume_yes
+            ask_user=not args.assume_yes,
+            update=args.update
         )
 
     def cluster_migrate(cmd_args):
