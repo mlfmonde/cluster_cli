@@ -156,6 +156,11 @@ optional arguments:
                         Time in second to let a chance to deploy the service
                         beforeraising an exception (ignored with ``--no-wait``
                         option)
+  -u UPDATE, --update UPDATE
+                        When migrate, run the upgrade script (default). To not
+                        upgrade: -u 0 or --update=0. To upgrade: -u 1 or
+                        --update=1 (default). Recommended when you migrate a
+                        prod db on ahead staging.
 ```
 
 ### Move from master

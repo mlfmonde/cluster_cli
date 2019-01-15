@@ -127,8 +127,16 @@ def main():
         '-t', '--timeout',
         type=int,
         default=cluster.DEFAULT_TIMEOUT,
-        help='Time in second to let a chance to deploy the service before'
+        help='Time in second to let a chance to deploy the service before '
              'raising an exception (ignored with ``--no-wait`` option)'
+    )
+    parser_migrate.add_argument(
+        '-u', '--update',
+        default=True,
+        help='When migrate, run the upgrade script (default). '
+             'To not upgrade: -u 0 or --update=0. '
+             'To upgrade: -u 1 or --update=1 (default). '
+             'Recommended when you migrate a prod db on ahead staging.'
     )
     parser_move_masters_from = subparsers.add_parser(
         'move-masters-from',
@@ -196,7 +204,8 @@ def main():
             target_repo=cmd_args.target_repo,
             no_wait=cmd_args.no_wait,
             timeout=cmd_args.timeout,
-            ask_user=not arguments.assume_yes
+            ask_user=not arguments.assume_yes,
+            update=bool(int(cmd_args.update))
         )
 
     def cluster_move_masters_from(args):
