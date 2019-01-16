@@ -156,6 +156,9 @@ optional arguments:
                         Time in second to let a chance to deploy the service
                         beforeraising an exception (ignored with ``--no-wait``
                         option)
+  -n, --no-update       When migrate, do not run the upgrade script.
+                        Recommended when you migrate a prod db on an iso
+                        staging app.
 ```
 
 ### Move from master
