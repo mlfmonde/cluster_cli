@@ -332,7 +332,7 @@ class Cluster:
             no_wait=False,
             timeout=DEFAULT_TIMEOUT,
             ask_user=True,
-            update=True
+            no_update=False
     ):
 
         if not target_repo:
@@ -388,7 +388,7 @@ class Cluster:
                         'repo': target_app.repo_url,
                         'branch': target_app.branch
                     },
-                    'update': update
+                    'update': not no_update
                 }
             ),
             no_wait,

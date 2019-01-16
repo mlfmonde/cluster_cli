@@ -131,12 +131,11 @@ def main():
              'raising an exception (ignored with ``--no-wait`` option)'
     )
     parser_migrate.add_argument(
-        '-u', '--update',
-        default=True,
-        help='When migrate, run the upgrade script (default). '
-             'To not upgrade: -u 0 or --update=0. '
-             'To upgrade: -u 1 or --update=1 (default). '
-             'Recommended when you migrate a prod db on ahead staging.'
+        '-n', '--no-update',
+        action='store_true',
+        default=False,
+        help='When migrate, do not run the upgrade script. '
+             'Recommended when you migrate a prod db on an iso staging app.'
     )
     parser_move_masters_from = subparsers.add_parser(
         'move-masters-from',
@@ -205,7 +204,7 @@ def main():
             no_wait=cmd_args.no_wait,
             timeout=cmd_args.timeout,
             ask_user=not arguments.assume_yes,
-            update=bool(int(cmd_args.update))
+            no_update=cmd_args.no_update
         )
 
     def cluster_move_masters_from(args):
