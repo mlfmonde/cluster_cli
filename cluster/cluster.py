@@ -106,7 +106,8 @@ class Cluster:
             slave=None,
             no_wait=False,
             timeout=DEFAULT_TIMEOUT,
-            ask_user=True
+            ask_user=True,
+            update=False
     ):
         key, app = self.get_kv_application(repo_name, branch)
         if master and slave and master == slave:
@@ -188,7 +189,8 @@ class Cluster:
             new_master,
             slave=new_slave,
             no_wait=no_wait,
-            timeout=timeout
+            timeout=timeout,
+            update=update
         )
 
     def move_masters_from(

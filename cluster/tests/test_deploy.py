@@ -135,7 +135,8 @@ class TestDeploy(ClusterTestCase):
                 'node-2',
                 slave='node-1',
                 no_wait=False,
-                timeout=cluster.DEFAULT_TIMEOUT
+                timeout=cluster.DEFAULT_TIMEOUT,
+                update=False
             )
 
     @mock.patch('cluster.util.get_input', return_value='Yes')
@@ -150,7 +151,8 @@ class TestDeploy(ClusterTestCase):
                 'node-1',
                 slave=None,
                 no_wait=False,
-                timeout=cluster.DEFAULT_TIMEOUT
+                timeout=cluster.DEFAULT_TIMEOUT,
+                update=False
             )
 
     @mock.patch('cluster.util.get_input', return_value='Yes')
@@ -167,7 +169,8 @@ class TestDeploy(ClusterTestCase):
                 'node-1',
                 slave='node-2',
                 no_wait=False,
-                timeout=cluster.DEFAULT_TIMEOUT
+                timeout=cluster.DEFAULT_TIMEOUT,
+                update=False
             )
 
     @mock.patch('cluster.util.get_input', return_value='Yes')
@@ -184,7 +187,8 @@ class TestDeploy(ClusterTestCase):
                 'node-2',
                 slave='node-1',
                 no_wait=False,
-                timeout=cluster.DEFAULT_TIMEOUT
+                timeout=cluster.DEFAULT_TIMEOUT,
+                update=False
             )
 
     @mock.patch('cluster.util.get_input', return_value='Yes')
@@ -201,10 +205,13 @@ class TestDeploy(ClusterTestCase):
                 'node-3',
                 slave='node-1',
                 no_wait=False,
-                timeout=cluster.DEFAULT_TIMEOUT
+                timeout=cluster.DEFAULT_TIMEOUT,
+                update=False
             )
 
-    def test_deploy_master_slave_force_master_slave_new_nodes(self):
+    def test_deploy_master_slave_force_master_slave_new_nodes_with_update(
+        self
+    ):
         self.init_mocks()
         with mock.patch('cluster.cluster.Cluster._deploy') as mo:
             self.cluster.deploy(
@@ -212,7 +219,8 @@ class TestDeploy(ClusterTestCase):
                 'branch-name',
                 master='node-3',
                 slave='node-4',
-                ask_user=False
+                ask_user=False,
+                update=True
             )
             mo.assert_called_once_with(
                 'app/repo-name_branch-name.739a5',
@@ -222,6 +230,7 @@ class TestDeploy(ClusterTestCase):
                 slave='node-4',
                 no_wait=False,
                 timeout=cluster.DEFAULT_TIMEOUT,
+                update=True
             )
 
     @mock.patch('cluster.util.get_input', return_value='Yes')
@@ -238,7 +247,8 @@ class TestDeploy(ClusterTestCase):
                 'node-1',
                 slave='node-2',
                 no_wait=False,
-                timeout=cluster.DEFAULT_TIMEOUT
+                timeout=cluster.DEFAULT_TIMEOUT,
+                update=False
             )
 
     @mock.patch('cluster.util.get_input', return_value='Yes')
@@ -255,7 +265,8 @@ class TestDeploy(ClusterTestCase):
                 'node-2',
                 slave='node-1',
                 no_wait=False,
-                timeout=cluster.DEFAULT_TIMEOUT
+                timeout=cluster.DEFAULT_TIMEOUT,
+                update=False
             )
 
     def test_deploy_master_slave_force_master_on_same_nodes_name(self):
@@ -266,7 +277,8 @@ class TestDeploy(ClusterTestCase):
             'repo-name',
             'branch-name',
             master='node-1',
-            slave='node-1'
+            slave='node-1',
+            update=False
         )
 
     def test_deploy_unknown_master(self):
@@ -277,6 +289,7 @@ class TestDeploy(ClusterTestCase):
             'repo-name',
             'branch-name',
             master='node-5',
+            update=False
         )
 
     def test_deploy_unknown_slave(self):
@@ -287,6 +300,7 @@ class TestDeploy(ClusterTestCase):
             'repo-name',
             'branch-name',
             slave='node-5',
+            update=False
         )
 
     @mock.patch('cluster.util.get_input', return_value='Yes')
@@ -303,7 +317,8 @@ class TestDeploy(ClusterTestCase):
                 'node-1',
                 slave=None,
                 no_wait=False,
-                timeout=cluster.DEFAULT_TIMEOUT
+                timeout=cluster.DEFAULT_TIMEOUT,
+                update=False
             )
 
     @mock.patch('cluster.util.get_input', return_value='Yes')
@@ -320,7 +335,8 @@ class TestDeploy(ClusterTestCase):
                 'node-2',
                 slave=None,
                 no_wait=False,
-                timeout=cluster.DEFAULT_TIMEOUT
+                timeout=cluster.DEFAULT_TIMEOUT,
+                update=False
             )
 
     @mock.patch('cluster.util.get_input', return_value='Yes')
@@ -338,7 +354,8 @@ class TestDeploy(ClusterTestCase):
                 'node-1',
                 slave='node-2',
                 no_wait=False,
-                timeout=cluster.DEFAULT_TIMEOUT
+                timeout=cluster.DEFAULT_TIMEOUT,
+                update=False
             )
 
     @mock.patch('cluster.util.get_input', return_value='Yes')
@@ -368,7 +385,8 @@ class TestDeploy(ClusterTestCase):
                 'node-2',
                 slave='node-4',
                 no_wait=False,
-                timeout=cluster.DEFAULT_TIMEOUT
+                timeout=cluster.DEFAULT_TIMEOUT,
+                update=False
             )
 
     @mock.patch('cluster.util.get_input', return_value='Yes')
@@ -385,7 +403,8 @@ class TestDeploy(ClusterTestCase):
                 'node-1',
                 slave='node-2',
                 no_wait=False,
-                timeout=cluster.DEFAULT_TIMEOUT
+                timeout=cluster.DEFAULT_TIMEOUT,
+                update=False
             )
 
     @mock.patch('cluster.util.get_input', return_value='YeS')
@@ -402,7 +421,8 @@ class TestDeploy(ClusterTestCase):
                 'node-2',
                 slave='node-1',
                 no_wait=False,
-                timeout=cluster.DEFAULT_TIMEOUT
+                timeout=cluster.DEFAULT_TIMEOUT,
+                update=False
             )
 
     @mock.patch('cluster.util.get_input', return_value='YEs')
@@ -495,7 +515,8 @@ class TestDeploy(ClusterTestCase):
                 'node-1',
                 slave=None,
                 no_wait=False,
-                timeout=cluster.DEFAULT_TIMEOUT
+                timeout=cluster.DEFAULT_TIMEOUT,
+                update=False
             )
 
     @mock.patch('cluster.util.get_input', return_value='no')
