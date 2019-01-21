@@ -36,11 +36,73 @@ class TestMigrate(ClusterTestCase):
                     target_repo='reponame2',
                     no_wait=True,
                     timeout=5,
-                    ask_user=False
+                    ask_user=False,
+                    no_update=False
+                )
+
+    def test_command_line_no_update(self):
+        with mock.patch(
+                'sys.argv',
+                [
+                    'cluster',
+                    '-y',
+                    'migrate',
+                    'reponame',
+                    'source-branch',
+                    'target-branch',
+                    '--target-repo',
+                    'reponame2',
+                    '--no-wait',
+                    '-t',
+                    '5',
+                    '-n',
+                ]
+        ):
+            with mock.patch('cluster.cluster.Cluster.migrate') as mo:
+                main()
+                mo.assert_called_once_with(
+                    'reponame',
+                    'source-branch',
+                    'target-branch',
+                    target_repo='reponame2',
+                    no_wait=True,
+                    timeout=5,
+                    ask_user=False,
+                    no_update=True
+                )
+
+        with mock.patch(
+                'sys.argv',
+                [
+                    'cluster',
+                    '-y',
+                    'migrate',
+                    'reponame',
+                    'source-branch',
+                    'target-branch',
+                    '--target-repo',
+                    'reponame2',
+                    '--no-wait',
+                    '-t',
+                    '5',
+                    '--no-update',
+                ]
+        ):
+            with mock.patch('cluster.cluster.Cluster.migrate') as mo:
+                main()
+                mo.assert_called_once_with(
+                    'reponame',
+                    'source-branch',
+                    'target-branch',
+                    target_repo='reponame2',
+                    no_wait=True,
+                    timeout=5,
+                    ask_user=False,
+                    no_update=True
                 )
 
     @mock.patch('cluster.util.get_input', return_value='yes')
-    def test_migrate(self, _):
+    def test_migrate_default(self, _):
         self.init_mocks(extra={
             "repo_url": "ssh://git@git.example.org:2222/services/migrate-repo"}
         )
@@ -58,7 +120,37 @@ class TestMigrate(ClusterTestCase):
                             'repo': 'ssh://git@git.example.org:2222/services/'
                                     'migrate-repo',
                             'branch': 'qualif'
-                        }
+                        },
+                        'update': True
+                    }
+                ),
+                False,
+                cluster.Cluster.migrate_finished,
+                cluster.DEFAULT_TIMEOUT
+            )
+
+    @mock.patch('cluster.util.get_input', return_value='yes')
+    def test_migrate_no_update(self, _):
+        self.init_mocks(extra={
+            "repo_url": "ssh://git@git.example.org:2222/services/migrate-repo"}
+        )
+        with mock.patch('cluster.cluster.Cluster._fire_event') as mo:
+            self.cluster.migrate('migrate-repo', 'prod', 'qualif',
+                                 no_update=True)
+            mo.assert_called_once_with(
+                'app/migrate-repo_qualif.12345',
+                'migrate',
+                json.dumps(
+                    {
+                        'repo': 'ssh://git@git.example.org:2222/services/'
+                                'migrate-repo',
+                        'branch': 'prod',
+                        'target': {
+                            'repo': 'ssh://git@git.example.org:2222/services/'
+                                    'migrate-repo',
+                            'branch': 'qualif'
+                        },
+                        'update': False
                     }
                 ),
                 False,

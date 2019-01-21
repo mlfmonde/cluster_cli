@@ -106,7 +106,8 @@ class Cluster:
             slave=None,
             no_wait=False,
             timeout=DEFAULT_TIMEOUT,
-            ask_user=True
+            ask_user=True,
+            update=False
     ):
         key, app = self.get_kv_application(repo_name, branch)
         if master and slave and master == slave:
@@ -188,7 +189,8 @@ class Cluster:
             new_master,
             slave=new_slave,
             no_wait=no_wait,
-            timeout=timeout
+            timeout=timeout,
+            update=update
         )
 
     def move_masters_from(
@@ -284,7 +286,8 @@ class Cluster:
         slave=None,
         no_wait=False,
         timeout=DEFAULT_TIMEOUT,
-        event_consumed=None
+        event_consumed=None,
+        update=False
     ):
         """Deploy a service waiting the end end of deployment before carry on
         """
@@ -315,6 +318,7 @@ class Cluster:
                     'branch': branch,
                     'master': master,
                     'slave': slave,
+                    'update': update
                 }
             ),
             no_wait,
@@ -342,7 +346,8 @@ class Cluster:
             target_repo=None,
             no_wait=False,
             timeout=DEFAULT_TIMEOUT,
-            ask_user=True
+            ask_user=True,
+            no_update=False
     ):
 
         if not target_repo:
@@ -397,7 +402,8 @@ class Cluster:
                     'target': {
                         'repo': target_app.repo_url,
                         'branch': target_app.branch
-                    }
+                    },
+                    'update': not no_update
                 }
             ),
             no_wait,
