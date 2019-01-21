@@ -274,7 +274,7 @@ class Cluster:
                 master_apps.append(key)
 
         print("Master apps of node {node}:".format(node=node))
-        print("\n".join(master_apps))
+        print("\n".join(sorted(master_apps)))
 
     # communicate with consul
     def _deploy(
