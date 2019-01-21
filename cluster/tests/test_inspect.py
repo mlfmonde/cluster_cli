@@ -30,8 +30,8 @@ def fixture_consul_kv_find_payload():
 def fixture_expected_result():
     return "\n".join([
        "Master apps of node node1:",
-        "app1",
-        "app3",
+       "app1",
+       "app3",
     ])
 
 
