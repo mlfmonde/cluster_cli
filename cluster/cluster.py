@@ -11,6 +11,7 @@ from urllib import parse
 from cluster import util
 
 DEFAULT_TIMEOUT = 300
+APP_KEY_SEPARATOR = '.'  # app key prefix/md5 separator
 logger = logging.getLogger(__name__)
 
 
@@ -83,9 +84,13 @@ class Cluster:
         return checks
 
     def get_kv_application(self, repo_name, branch):
-        apps = self.consul.kv.find('app/{repo}_{branch}'.format(
-            repo=repo_name, branch=branch)
+        apps = self.consul.kv.find('app/{repo}_{branch}{separator}'.format(
+                repo=repo_name,
+                branch=branch,
+                separator=APP_KEY_SEPARATOR
+            )
         )
+
         if not apps:
             return None, None
         if len(apps) > 1:
