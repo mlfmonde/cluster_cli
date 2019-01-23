@@ -1,4 +1,5 @@
 import json
+import pytest
 
 from testfixtures import OutputCapture
 from unittest import mock
@@ -6,6 +7,61 @@ from unittest import mock
 from cluster.client import main
 from cluster import cluster
 from cluster.tests.cluster_test_case import ClusterTestCase, Counter
+
+
+def fixture_issue14_get_command_line_args():
+    return [
+        'sys.argv',
+        [
+            'cluster',
+            'migrate',
+            'reponame',
+            'branch',
+            'branch2',
+            '--no-update',
+        ],
+    ]
+
+
+def fixture_issue14_consul_kv_app():
+    return {
+       'reponame_branch.f123e':
+           '{"master": "node1", "slave": "node2", "branch": "branch"}',
+       'reponame_branch2.e321a':
+           '{"master": "node2", "slave": "node1", "branch": "branch2"}',
+       'other_branch.a789b':
+            '{"master": "node2", "slave": "node1", "branch": "branch"}',
+       'other_branch2.c567d':
+            '{"master": "node2", "slave": "node1", "branch": "branch2"}',
+    }
+
+
+def _fixture_issue14_exception(branches):
+    return \
+        "Repo / branch are ambiguous" \
+        ", multiple keys (dict_keys" \
+        "([{branches}])" \
+        ") found forgiven repo: reponame, branch: branch".format(
+            branches=', '.join(branches)
+        )
+
+
+def fixture_issue14_exception():
+    return _fixture_issue14_exception([
+        "'reponame_branch.f123e'",
+        "'reponame_branch2.e321a'",
+    ])
+
+
+def fixture_issue14_exception2():
+    return _fixture_issue14_exception([
+        "'reponame_branch2.e321a'",
+        "'reponame_branch.f123e'",
+    ])
+
+
+def fixture_issue14_search_expr():
+    return "reponame_branch"
 
 
 class TestMigrate(ClusterTestCase):
@@ -228,3 +284,20 @@ class TestMigrate(ClusterTestCase):
         self.assertTrue(
             "Not confirmed, Aborting" in output.captured
         )
+
+
+class TestMigrateIssue14(ClusterTestCase):
+    def _fake_kv_find(self, search_expr):
+        data = fixture_issue14_consul_kv_app()
+        return {key: data[key] for key in data if key.startswith(search_expr)}
+
+    def test_reproduce(self):
+        self.mocked_consul.kv.find.side_effect = [
+            self._fake_kv_find('reponame_branch'),
+            self._fake_kv_find('reponame_branch2')
+        ]
+    with pytest.raises(RuntimeError) as excinfo:
+        with mock.patch(*fixture_issue14_get_command_line_args()):
+            main()
+        assert fixture_issue14_exception() == str(excinfo.value) \
+            or fixture_issue14_exception2() == str(excinfo.value)
