@@ -98,7 +98,7 @@ class Cluster:
             raise RuntimeError(
                 "Repo / branch are ambiguous, multiple keys ({}) found for"
                 "given repo: {}, branch: {}".format(
-                    apps.keys(), repo_name, branch
+                    sorted(apps.keys()), repo_name, branch
                 )
             )
         key, data = apps.popitem()

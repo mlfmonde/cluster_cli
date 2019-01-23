@@ -9,61 +9,6 @@ from cluster import cluster
 from cluster.tests.cluster_test_case import ClusterTestCase, Counter
 
 
-def fixture_issue14_get_command_line_args():
-    return [
-        'sys.argv',
-        [
-            'cluster',
-            'migrate',
-            'reponame',
-            'branch',
-            'branch2',
-            '--no-update',
-        ],
-    ]
-
-
-def fixture_issue14_consul_kv_app():
-    return {
-       'reponame_branch.f123e':
-           '{"master": "node1", "slave": "node2", "branch": "branch"}',
-       'reponame_branch2.e321a':
-           '{"master": "node2", "slave": "node1", "branch": "branch2"}',
-       'other_branch.a789b':
-            '{"master": "node2", "slave": "node1", "branch": "branch"}',
-       'other_branch2.c567d':
-            '{"master": "node2", "slave": "node1", "branch": "branch2"}',
-    }
-
-
-def _fixture_issue14_exception(branches):
-    return \
-        "Repo / branch are ambiguous" \
-        ", multiple keys (dict_keys" \
-        "([{branches}])" \
-        ") found forgiven repo: reponame, branch: branch".format(
-            branches=', '.join(branches)
-        )
-
-
-def fixture_issue14_exception():
-    return _fixture_issue14_exception([
-        "'reponame_branch.f123e'",
-        "'reponame_branch2.e321a'",
-    ])
-
-
-def fixture_issue14_exception2():
-    return _fixture_issue14_exception([
-        "'reponame_branch2.e321a'",
-        "'reponame_branch.f123e'",
-    ])
-
-
-def fixture_issue14_search_expr():
-    return "reponame_branch"
-
-
 class TestMigrate(ClusterTestCase):
 
     def test_command_line(self):
@@ -287,17 +232,128 @@ class TestMigrate(ClusterTestCase):
 
 
 class TestMigrateIssue14(ClusterTestCase):
+    _repo = "reponame"
+    _repo_url = "ssh://git@git.example.org:2222/services/reponame"
+    _other_repo_url = "ssh://git@git.example.org:2222/services/other"
+    _branch = "branch"
+    _branch2 = "branch2"
+    _prefixes = ['reponame_branch.f123e', 'reponame_branch2.e321a']
+
+    def fixture_app_kv(self):
+        return {
+            'reponame_{branch}.f123e'.format(branch=self._branch):
+                json.dumps({
+                    'master': 'node1',
+                    'slave': 'node2',
+                    'branch': self._branch,
+                    'repo_url': self._repo_url,
+                }),
+            'reponame_{branch}.e321a'.format(branch=self._branch2):
+                json.dumps({
+                    'master': 'node2',
+                    'slave': 'node1',
+                    'branch': self._branch2,
+                    'repo_url': self._repo_url,
+                }),
+            'other_{branch}.a567c'.format(branch=self._branch):
+                json.dumps({
+                    'master': 'node1',
+                    'slave': 'node2',
+                    'branch': self._branch,
+                    'repo_url': self._other_repo_url,
+                }),
+            'other_{branch}.b345d'.format(branch=self._branch2):
+                json.dumps({
+                    'master': 'node2',
+                    'slave': 'node1',
+                    'branch': self._branch2,
+                    'repo_url': self._other_repo_url,
+                }),
+        }
+
+    def fixture_exception(self, branches):
+        return \
+            "Repo / branch are ambiguous" \
+            ", multiple keys (dict_keys" \
+            "([{branches}])" \
+            ") found forgiven repo: reponame, branch: branch".format(
+                branches=', '.join(branches)
+            )
+
+    def fixture_migrate_payload(self):
+        return json.dumps({
+            'repo': self._repo_url,
+            'branch': self._branch,
+            'target': {
+                'repo': self._repo_url,
+                'branch': 'branch2',
+            },
+            'update': False,
+        })
+
     def _fake_kv_find(self, search_expr):
-        data = fixture_issue14_consul_kv_app()
+        search_expr = search_expr.split('app/')[-1]
+        data = self.fixture_app_kv()
         return {key: data[key] for key in data if key.startswith(search_expr)}
 
-    def test_reproduce(self):
-        self.mocked_consul.kv.find.side_effect = [
-            self._fake_kv_find('reponame_branch'),
-            self._fake_kv_find('reponame_branch2')
-        ]
-    with pytest.raises(RuntimeError) as excinfo:
-        with mock.patch(*fixture_issue14_get_command_line_args()):
-            main()
-        assert fixture_issue14_exception() == str(excinfo.value) \
-            or fixture_issue14_exception2() == str(excinfo.value)
+    @mock.patch('cluster.util.get_input', return_value='yes')
+    def test_reproduce(self, _):
+        with pytest.raises(RuntimeError) as excinfo:
+            self.init_mocks(extra={
+                "repo_url": self._repo_url}
+            )
+            with mock.patch('cluster.cluster.Cluster._fire_event') as mo:
+                self.mocked_consul.kv.find.side_effect = [
+                    self._fake_kv_find(cluster.APP_KV_FIND_PATTERN.format(
+                        repo=self._repo,
+                        branch=self._branch,
+                        separator=''  # neutralize separator to simulate issue
+                    )),
+                    self._fake_kv_find(cluster.APP_KV_FIND_PATTERN.format(
+                        repo=self._repo,
+                        branch=self._branch2,
+                        separator=''  # neutralize separator to simulate issue
+                    )),
+                ]
+
+                self.cluster.migrate(
+                    self._repo,
+                    self._branch,
+                    self._branch2,
+                    no_update=True
+                )
+            assert fixture_exception(self._prefixes) == str(excinfo.value)
+
+    @mock.patch('cluster.util.get_input', return_value='yes')
+    def test_fix(self, _):
+        self.init_mocks(extra={
+            "repo_url": self._repo_url}
+        )
+        with mock.patch('cluster.cluster.Cluster._fire_event') as mo:
+            self.mocked_consul.kv.find.side_effect = [
+                self._fake_kv_find(cluster.APP_KV_FIND_PATTERN.format(
+                    repo=self._repo,
+                    branch=self._branch,
+                    separator=cluster.APP_KEY_SEPARATOR
+                )),
+                self._fake_kv_find(cluster.APP_KV_FIND_PATTERN.format(
+                    repo=self._repo,
+                    branch=self._branch2,
+                    separator=cluster.APP_KEY_SEPARATOR
+                )),
+            ]
+
+            self.cluster.migrate(
+                self._repo,
+                self._branch,
+                self._branch2,
+                no_update=True
+            )
+            mo.assert_called_once_with(
+                self._prefixes[1],
+                'migrate',
+                self.fixture_migrate_payload(),
+                False,
+                cluster.Cluster.migrate_finished,
+                cluster.DEFAULT_TIMEOUT
+            )
