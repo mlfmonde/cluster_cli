@@ -239,34 +239,36 @@ class TestMigrateIssue14(ClusterTestCase):
     _branch2 = "branch2"
     _prefixes = ['reponame_branch.f123e', 'reponame_branch2.e321a']
 
-    def fixture_app_kv(self):
+    def fixture_app_kv(self, source_branch=False, target_branch=False):
+        source_branch = source_branch or self._branch
+        target_branch = target_branch or self._branch2
         return {
-            'reponame_{branch}.f123e'.format(branch=self._branch):
+            'reponame_{branch}.f123e'.format(branch=source_branch):
                 json.dumps({
                     'master': 'node1',
                     'slave': 'node2',
-                    'branch': self._branch,
+                    'branch': source_branch,
                     'repo_url': self._repo_url,
                 }),
-            'reponame_{branch}.e321a'.format(branch=self._branch2):
+            'reponame_{branch}.e321a'.format(branch=target_branch):
                 json.dumps({
                     'master': 'node2',
                     'slave': 'node1',
-                    'branch': self._branch2,
+                    'branch': target_branch,
                     'repo_url': self._repo_url,
                 }),
-            'other_{branch}.a567c'.format(branch=self._branch):
+            'other_{branch}.a567c'.format(branch=source_branch):
                 json.dumps({
                     'master': 'node1',
                     'slave': 'node2',
-                    'branch': self._branch,
+                    'branch': source_branch,
                     'repo_url': self._other_repo_url,
                 }),
-            'other_{branch}.b345d'.format(branch=self._branch2):
+            'other_{branch}.b345d'.format(branch=target_branch):
                 json.dumps({
                     'master': 'node2',
                     'slave': 'node1',
-                    'branch': self._branch2,
+                    'branch': target_branch,
                     'repo_url': self._other_repo_url,
                 }),
         }
@@ -280,20 +282,34 @@ class TestMigrateIssue14(ClusterTestCase):
                 branches=', '.join(branches)
             )
 
-    def fixture_migrate_payload(self):
+    def fixture_migrate_payload(
+        self,
+        source_branch=False,
+        target_branch=False
+    ):
+        source_branch = source_branch or self._branch
+        target_branch = target_branch or self._branch2
         return json.dumps({
             'repo': self._repo_url,
-            'branch': self._branch,
+            'branch': source_branch,
             'target': {
                 'repo': self._repo_url,
-                'branch': 'branch2',
+                'branch': target_branch,
             },
             'update': False,
         })
 
-    def _fake_kv_find(self, search_expr):
+    def _fake_kv_find(
+        self,
+        search_expr,
+        source_branch=False,
+        target_branch=False
+    ):
         search_expr = search_expr.split('app/')[-1]
-        data = self.fixture_app_kv()
+        data = self.fixture_app_kv(
+            source_branch=source_branch,
+            target_branch=target_branch
+        )
         return {key: data[key] for key in data if key.startswith(search_expr)}
 
     @mock.patch('cluster.util.get_input', return_value='yes')
@@ -331,16 +347,20 @@ class TestMigrateIssue14(ClusterTestCase):
         )
         with mock.patch('cluster.cluster.Cluster._fire_event') as mo:
             self.mocked_consul.kv.find.side_effect = [
-                self._fake_kv_find(cluster.APP_KV_FIND_PATTERN.format(
-                    repo=self._repo,
-                    branch=self._branch,
-                    separator=cluster.APP_KEY_SEPARATOR
-                )),
-                self._fake_kv_find(cluster.APP_KV_FIND_PATTERN.format(
-                    repo=self._repo,
-                    branch=self._branch2,
-                    separator=cluster.APP_KEY_SEPARATOR
-                )),
+                self._fake_kv_find(
+                    cluster.APP_KV_FIND_PATTERN.format(
+                        repo=self._repo,
+                        branch=self._branch,
+                        separator=cluster.APP_KEY_SEPARATOR
+                    )
+                ),
+                self._fake_kv_find(
+                    cluster.APP_KV_FIND_PATTERN.format(
+                        repo=self._repo,
+                        branch=self._branch2,
+                        separator=cluster.APP_KEY_SEPARATOR
+                    )
+                ),
             ]
 
             self.cluster.migrate(
@@ -353,6 +373,51 @@ class TestMigrateIssue14(ClusterTestCase):
                 self._prefixes[1],
                 'migrate',
                 self.fixture_migrate_payload(),
+                False,
+                cluster.Cluster.migrate_finished,
+                cluster.DEFAULT_TIMEOUT
+            )
+
+    @mock.patch('cluster.util.get_input', return_value='yes')
+    def test_distinct_branch_prefixes(self, _):
+        self.init_mocks(extra={
+            "repo_url": self._repo_url}
+        )
+        with mock.patch('cluster.cluster.Cluster._fire_event') as mo:
+            self.mocked_consul.kv.find.side_effect = [
+                self._fake_kv_find(
+                    cluster.APP_KV_FIND_PATTERN.format(
+                        repo=self._repo,
+                        branch='prod',
+                        separator=cluster.APP_KEY_SEPARATOR
+                    ),
+                    source_branch='prod',
+                    target_branch='staging'
+                ),
+                self._fake_kv_find(
+                    cluster.APP_KV_FIND_PATTERN.format(
+                        repo=self._repo,
+                        branch='staging',
+                        separator=cluster.APP_KEY_SEPARATOR
+                    ),
+                    source_branch='prod',
+                    target_branch='staging'
+                ),
+            ]
+
+            self.cluster.migrate(
+                self._repo,
+                'prod',
+                'staging',
+                no_update=True
+            )
+            mo.assert_called_once_with(
+                self._prefixes[1].replace(self._branch2, 'staging'),
+                'migrate',
+                self.fixture_migrate_payload(
+                    source_branch='prod',
+                    target_branch='staging'
+                ),
                 False,
                 cluster.Cluster.migrate_finished,
                 cluster.DEFAULT_TIMEOUT
