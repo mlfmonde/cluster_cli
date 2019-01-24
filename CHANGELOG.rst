@@ -10,11 +10,13 @@ Unreleased
 
 * Improve various user feedback/usage, add confirmation, logging config and typo
 
-* Implement move-masters-from to move all services hosted on the given node
+* Implement 'move-masters-from' subcommand to move all services hosted on the given node
 
-* Implement migrate subcommand to move buttervolume docker volumes from a
+* Implement 'migrate' subcommand to move buttervolume docker volumes from a
   service to another one (ie: prod to qualif)
 
-* Implement deploy subcommand to Deploy or re-deploy a service
+* Implement 'deploy' subcommand to Deploy or re-deploy a service
 
 * First implementation, list checks per nodes
+
+# Implement 'inspect' subcommand to display master apps of a given node
