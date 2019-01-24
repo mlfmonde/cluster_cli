@@ -19,4 +19,4 @@ Unreleased
 
 * First implementation, list checks per nodes
 
-# Implement 'inspect' subcommand to display master apps of a given node
+* Implement 'inspect' subcommand to display master apps of a given node
