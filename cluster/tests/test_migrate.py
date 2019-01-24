@@ -1,4 +1,5 @@
 import json
+import pytest
 
 from testfixtures import OutputCapture
 from unittest import mock
@@ -227,4 +228,177 @@ class TestMigrate(ClusterTestCase):
             self.cluster.migrate('migrate-repo', 'prod', 'qualif')
         self.assertTrue(
             "Not confirmed, Aborting" in output.captured
+        )
+
+
+class TestMigrateIssue14(ClusterTestCase):
+    _repo = "reponame"
+    _repo_url = "ssh://git@git.example.org:2222/services/reponame"
+    _other_repo_url = "ssh://git@git.example.org:2222/services/other"
+    _prefixes = ['reponame_branch.f123e', 'reponame_branch2.e321a']
+    _prefixes_replace_holder = (-1, "branch2")  # index, expression
+
+    def fixture_app_kv(self, source_branch, target_branch):
+        return {
+            'reponame_{branch}.f123e'.format(branch=source_branch):
+                json.dumps({
+                    'master': 'node1',
+                    'slave': 'node2',
+                    'branch': source_branch,
+                    'repo_url': self._repo_url,
+                }),
+            'reponame_{branch}.e321a'.format(branch=target_branch):
+                json.dumps({
+                    'master': 'node2',
+                    'slave': 'node1',
+                    'branch': target_branch,
+                    'repo_url': self._repo_url,
+                }),
+            'other_{branch}.a567c'.format(branch=source_branch):
+                json.dumps({
+                    'master': 'node1',
+                    'slave': 'node2',
+                    'branch': source_branch,
+                    'repo_url': self._other_repo_url,
+                }),
+            'other_{branch}.b345d'.format(branch=target_branch):
+                json.dumps({
+                    'master': 'node2',
+                    'slave': 'node1',
+                    'branch': target_branch,
+                    'repo_url': self._other_repo_url,
+                }),
+        }
+
+    def fixture_exception(self, branches):
+        return \
+            "Repo / branch are ambiguous" \
+            ", multiple keys (dict_keys" \
+            "([{branches}])" \
+            ") found forgiven repo: reponame, branch: branch".format(
+                branches=', '.join(branches)
+            )
+
+    def fixture_migrate_payload(self, source_branch, target_branch):
+        return json.dumps({
+            'repo': self._repo_url,
+            'branch': source_branch,
+            'target': {
+                'repo': self._repo_url,
+                'branch': target_branch,
+            },
+            'update': False,
+        })
+
+    def _fake_kv_find(self, search_expr, source_branch, target_branch):
+        search_expr = search_expr.split('app/')[-1]
+        data = self.fixture_app_kv(
+            source_branch=source_branch,
+            target_branch=target_branch
+        )
+        return {key: data[key] for key in data if key.startswith(search_expr)}
+
+    @mock.patch('cluster.util.get_input', return_value='yes')
+    def test_reproduce(self, _):
+        with pytest.raises(RuntimeError) as excinfo:
+            source_branch = 'branch'
+            target_branch = 'branch'
+
+            self.init_mocks(extra={
+                "repo_url": self._repo_url}
+            )
+            with mock.patch('cluster.cluster.Cluster._fire_event') as mo:
+                self.mocked_consul.kv.find.side_effect = [
+                    self._fake_kv_find(
+                        cluster.APP_KV_FIND_PATTERN.format(
+                            repo=self._repo,
+                            branch=source_branch,
+                            # neutralize separator to simulate issue
+                            separator=''
+                        ),
+                        source_branch=source_branch,
+                        target_branch=target_branch
+                    ),
+                    self._fake_kv_find(
+                        cluster.APP_KV_FIND_PATTERN.format(
+                            repo=self._repo,
+                            branch=target_branch,
+                            # neutralize separator to simulate issue
+                            separator=''
+                        ),
+                        source_branch=source_branch,
+                        target_branch=target_branch
+                    )
+                ]
+
+                self.cluster.migrate(
+                    self._repo,
+                    source_branch,
+                    target_branch,
+                    no_update=True
+                )
+            assert fixture_exception(self._prefixes) == str(excinfo.value)
+
+    def assert_migrate(self, source_branch, target_branch):
+        self.init_mocks(extra={
+            "repo_url": self._repo_url}
+        )
+        with mock.patch('cluster.cluster.Cluster._fire_event') as mo:
+            self.mocked_consul.kv.find.side_effect = [
+                self._fake_kv_find(
+                    cluster.APP_KV_FIND_PATTERN.format(
+                        repo=self._repo,
+                        branch=source_branch,
+                        separator=cluster.APP_KEY_SEPARATOR
+                    ),
+                    source_branch=source_branch,
+                    target_branch=target_branch
+                ),
+                self._fake_kv_find(
+                    cluster.APP_KV_FIND_PATTERN.format(
+                        repo=self._repo,
+                        branch=target_branch,
+                        separator=cluster.APP_KEY_SEPARATOR
+                    ),
+                    source_branch=source_branch,
+                    target_branch=target_branch
+                ),
+            ]
+
+            self.cluster.migrate(
+                self._repo,
+                source_branch,
+                target_branch,
+                no_update=True
+            )
+            mo.assert_called_once_with(
+                self._prefixes[self._prefixes_replace_holder[0]].replace(
+                    self._prefixes_replace_holder[1], target_branch),
+                'migrate',
+                self.fixture_migrate_payload(
+                    source_branch=source_branch,
+                    target_branch=target_branch
+                ),
+                False,
+                cluster.Cluster.migrate_finished,
+                cluster.DEFAULT_TIMEOUT
+            )
+
+    @mock.patch('cluster.util.get_input', return_value='yes')
+    def test_fix(self, _):
+        self.assert_migrate('branch', 'branch2')
+
+    @mock.patch('cluster.util.get_input', return_value='yes')
+    def test_distinct_branch_prefixes(self, _):
+        self.assert_migrate('prod', 'staging')
+
+    @mock.patch('cluster.util.get_input', return_value='yes')
+    def test_separator_in_branch_names(self, _):
+        self.assert_migrate(
+            source_branch="prod{separator}1".format(
+                separator=cluster.APP_KEY_SEPARATOR
+            ),
+            target_branch="staging{separator}1".format(
+                separator=cluster.APP_KEY_SEPARATOR
+            )
         )

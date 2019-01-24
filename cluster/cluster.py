@@ -11,6 +11,8 @@ from urllib import parse
 from cluster import util
 
 DEFAULT_TIMEOUT = 300
+APP_KEY_SEPARATOR = '.'  # app key prefix/md5 separator
+APP_KV_FIND_PATTERN = 'app/{repo}_{branch}{separator}'
 logger = logging.getLogger(__name__)
 
 
@@ -83,16 +85,20 @@ class Cluster:
         return checks
 
     def get_kv_application(self, repo_name, branch):
-        apps = self.consul.kv.find('app/{repo}_{branch}'.format(
-            repo=repo_name, branch=branch)
+        apps = self.consul.kv.find(APP_KV_FIND_PATTERN.format(
+                repo=repo_name,
+                branch=branch,
+                separator=APP_KEY_SEPARATOR
+            )
         )
+
         if not apps:
             return None, None
         if len(apps) > 1:
             raise RuntimeError(
                 "Repo / branch are ambiguous, multiple keys ({}) found for"
                 "given repo: {}, branch: {}".format(
-                    apps.keys(), repo_name, branch
+                    sorted(apps.keys()), repo_name, branch
                 )
             )
         key, data = apps.popitem()
