@@ -43,6 +43,7 @@ positional arguments:
                         host server.This command will helps you to send all
                         events to serviceshosted on the given node to its
                         slave or the wished master
+    inspect             Display all master services of given node.
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -185,6 +186,21 @@ optional arguments:
                         Time in second to let a chance to deploy the service
                         beforeraising an exception (ignored with ``--no-wait``
                         option)
+```
+
+### Inspect
+
+Display all master services of given node.
+
+```bash
+$ cluster inspect --help
+usage: cluster inspect [-h] node
+
+positional arguments:
+  node        Node where services should be inspected.
+
+optional arguments:
+  -h, --help  show this help message and exit
 ```
 
 ## Install
