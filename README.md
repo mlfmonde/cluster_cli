@@ -9,9 +9,10 @@ This is a command line utility tool to helps administrator to manage their
 Features are:
 
 * List consul health checks per nodes and service
-* deploy or switch services
-* migrate anybox/buttervolume docker volumes from one service to an other
-* clear a node by moving all services running on it
+* Deploy or switch services
+* Migrate anybox/buttervolume docker volumes from one service to an other
+* Clear a node by moving all services running on it
+* Inspect a node to display all master services of that node
 * Run anywhere you can contact your consul API
 
 ## Commands
@@ -121,12 +122,12 @@ optional arguments:
 ```
 ### Migrate
 
-Migrate buttervolume (docker volume) data from a service to another one. 
- 
+Migrate buttervolume (docker volume) data from a service to another one.
+
 Only identical volume name will be restored.
 
 ``source`` service is where to get data to restore on the ``target`` service.
- 
+
 Make sure to have a recent snaphot or backup of your target data (ie: switch
 your app before migrate) target data will be lost.
 
