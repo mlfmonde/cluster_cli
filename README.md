@@ -23,12 +23,12 @@ Use the embedded help command, to know the list of available commands:
 $ cluster -h
 usage: cluster [-h] [--consul CONSUL] [-y] [-f LOGGING_FILE]
                [-l LOGGING_LEVEL] [--logging-format LOGGING_FORMAT]
-               {checks,deploy,migrate,move-masters-from} ...
+               {checks,deploy,migrate,move-masters-from,inspect} ...
 
 Command line utility to administrate cluster
 
 positional arguments:
-  {checks,deploy,migrate,move-masters-from}
+  {checks,deploy,migrate,move-masters-from,inspect}
                         sub-commands
     checks              List consul health checks per nodes/service
     deploy              Deploy or re-deploy a service
