@@ -9,9 +9,10 @@ This is a command line utility tool to helps administrator to manage their
 Features are:
 
 * List consul health checks per nodes and service
-* deploy or switch services
-* migrate anybox/buttervolume docker volumes from one service to an other
-* clear a node by moving all services running on it
+* Deploy or switch services
+* Migrate anybox/buttervolume docker volumes from one service to an other
+* Clear a node by moving all services running on it
+* Inspect a node to display all master services of that node
 * Run anywhere you can contact your consul API
 
 ## Commands
@@ -22,12 +23,12 @@ Use the embedded help command, to know the list of available commands:
 $ cluster -h
 usage: cluster [-h] [--consul CONSUL] [-y] [-f LOGGING_FILE]
                [-l LOGGING_LEVEL] [--logging-format LOGGING_FORMAT]
-               {checks,deploy,migrate,move-masters-from} ...
+               {checks,deploy,migrate,move-masters-from,inspect} ...
 
 Command line utility to administrate cluster
 
 positional arguments:
-  {checks,deploy,migrate,move-masters-from}
+  {checks,deploy,migrate,move-masters-from,inspect}
                         sub-commands
     checks              List consul health checks per nodes/service
     deploy              Deploy or re-deploy a service
@@ -42,6 +43,7 @@ positional arguments:
                         host server.This command will helps you to send all
                         events to serviceshosted on the given node to its
                         slave or the wished master
+    inspect             Display all master services of given node.
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -121,12 +123,12 @@ optional arguments:
 ```
 ### Migrate
 
-Migrate buttervolume (docker volume) data from a service to another one. 
- 
+Migrate buttervolume (docker volume) data from a service to another one.
+
 Only identical volume name will be restored.
 
 ``source`` service is where to get data to restore on the ``target`` service.
- 
+
 Make sure to have a recent snaphot or backup of your target data (ie: switch
 your app before migrate) target data will be lost.
 
@@ -184,6 +186,21 @@ optional arguments:
                         Time in second to let a chance to deploy the service
                         beforeraising an exception (ignored with ``--no-wait``
                         option)
+```
+
+### Inspect
+
+Display all master services of given node.
+
+```bash
+$ cluster inspect --help
+usage: cluster inspect [-h] node
+
+positional arguments:
+  node        Node where services should be inspected.
+
+optional arguments:
+  -h, --help  show this help message and exit
 ```
 
 ## Install
